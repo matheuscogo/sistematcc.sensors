@@ -1,0 +1,15 @@
+flask
+flask-Migrate
+flask-marshmallow
+flask_marshmallow
+Flask-SQLAlchemy
+Flask-WTF
+flask-bcrypt
+flask-restx
+Werkzeug
+SQLAlchemy
+marshmallow-sqlalchemy
+sqlite-web
+flask-cors
+RPi.GPIO==0.6.3
+-e git+https://github.com/lthiery/SPI-Py.git#egg=spi-pi
