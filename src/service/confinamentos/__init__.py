@@ -13,11 +13,30 @@ def getConfinamentoByMatriz(matrizId):
         if resp.ok is not True:
             raise ConnectionError("Error")
         
-        teste = json.loads(resp.text)
-        
-        print(teste["id"])
-
         return json.loads(resp.text)
     
+    except ConnectionError as ex:
+        return ex.args[0]
+    
+
+def getDaysInConfinament(matrizId):
+    try:                  
+        resp = requests.get(f'http://localhost:5000/api/v1/confinamentos/getDaysInConfinament/'+str(matrizId))
+
+        if resp.ok is not True:
+            raise ConnectionError("Error")
+
+        return json.loads(resp.text)
+    except ConnectionError as ex:
+        return ex.args[0]
+    
+def getQuantityForMatriz(matrizId):
+    try:                  
+        resp = requests.get(f'http://localhost:5000/api/v1/confinamentos/getQuantityForMatriz/'+str(matrizId))
+
+        if resp.ok is not True:
+            raise ConnectionError("Error")
+
+        return json.loads(resp.text)
     except ConnectionError as ex:
         return ex.args[0]
