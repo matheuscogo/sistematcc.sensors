@@ -4,10 +4,13 @@ from requests.exceptions import ConnectionError
 
 import json
 
+# urlBase = "http://localhost:5000/api/v1/matrizes/"
+urlBase = "http://192.168.0.104:5000/api/v1/matrizes/"
+
 
 def getMatrizByRfid(rfid):
     try:
-        resp = requests.get(f'http://localhost:5000/api/v1/matrizesgetMatrizByRfid/'+str(rfid))
+        resp = requests.get(f'{urlBase}getMatrizByRfid/'+str(rfid))
 
         if resp.ok is not True:
             raise ConnectionError("Error")

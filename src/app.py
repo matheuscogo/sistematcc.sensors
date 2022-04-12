@@ -1,6 +1,6 @@
-from service import confinamentos
-from service import matrizes
-from service import avisos
+from services import confinamentos
+from services import matrizes
+from services import avisos
 
 import RPi.GPIO as GPIO #Importe la bibliothèque pour contrôler les GPIOs
 import random
@@ -17,11 +17,6 @@ porta1Fechando=32
 porta1Abrindo=36
 porta2Fechando=38
 porta2Abrindo=40
-
-fixarPIR=0 # simular sensor PIR
-P1=1 # porta 1 aberta (0 ou 1)
-P2=1 # porta 2 aberta (0 ou 1)
-brincoLido=0 # animal na maquina e brinco lido (1), sai da maquina (0) 
 
 GPIO.setmode(GPIO.BOARD) #Définit le mode de numérotation (Board)
 GPIO.setwarnings(False) #On désactive les messages d'alerte
@@ -42,6 +37,11 @@ def lerTag():  # retorna brinco aleatoriamente
     return tag[r]
 
 def start():
+    fixarPIR=0 # simular sensor PIR
+    P1=1 # porta 1 aberta (0 ou 1)
+    P2=1 # porta 2 aberta (0 ou 1)
+    brincoLido=0 # animal na maquina e brinco lido (1), sai da maquina (0) 
+    
     print('Aperte botão sensorPIR (Ou saia com Ctrl + c): ')
 
     horaVeficada = datetime.datetime.today().hour
@@ -62,6 +62,8 @@ def start():
         else:
             GPIO.output(porta2Abrindo,0)
 
+        data = datetime.datetime.today().hour - horaVeficada
+        
         if datetime.datetime.today().hour - horaVeficada  > 24:
             confinamentos.verifyDaysToOpen()
             horaVeficada = datetime.datetime.today().hour
@@ -93,7 +95,12 @@ def start():
             # enquanto brinco não lido ficar tentando ler
             if(not brincoLido):
                 brinco=lerTag()
-                matrizes.getMatrizByRfid(brinco)
+                
+                matriz = matrizes.getMatrizByRfid(brinco)
+                confinamento = confinamentos.getConfinamentoByMatriz(matriz['id'])
+                
+                quantidade = confinamentos.getQuantityForMatriz(matriz['id'])
+                
                 brincoLido=1    
                 print ('Tag {}!'.format(brinco))
 
