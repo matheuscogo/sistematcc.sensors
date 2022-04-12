@@ -1,4 +1,3 @@
-from asyncio import exceptions
 import responses
 import requests
 from requests.exceptions import ConnectionError
