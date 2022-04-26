@@ -55,7 +55,7 @@ def lerTag():  # retorna brinco aleatoriamente
 def start():
     fixarPIR=0 # simular sensor PIR
     portao=1 # porta 1 aberta (0 ou 1)
-    Separador=1 # porta 2 aberta (0 ou 1)
+    separador=1 # porta 2 aberta (0 ou 1)
     brincoLido=0 # animal na maquina e brinco lido (1), sai da maquina (0) 
     
     print('Aperte botão sensorPIR (Ou saia com Ctrl + c): ')
