@@ -1,6 +1,8 @@
 from services import confinamentos
 from services import matrizes
 from services import avisos
+from services import registros
+from services import dias
 
 import RPi.GPIO as GPIO  # Importe la bibliothèque pour contrôler les GPIOs
 import random
@@ -54,11 +56,20 @@ def lerTag():  # retorna brinco aleatoriamente
     return tag[r]
 
 
+cursoAberturaControl = GPIO.input(cursoAbertura) == 1
+cursoFechamentoControl = GPIO.input(cursoFechamento) == 1
+cursoSepadorAberturaControl = GPIO.input(
+    cursoSepadorAbertura) == 1
+cursoSepadorFechamentoControl = GPIO.input(
+    cursoSepadorFechamento) == 1
+
+
 def start():
     fixarPIR = 0  # simular sensor PIR
     portao = 1  # porta 1 aberta (0 ou 1)
     separador = 1  # porta 2 aberta (0 ou 1)
     brincoLido = 0  # animal na maquina e brinco lido (1), sai da maquina (0)
+    quantidadeTotal = 0
 
     print('Aperte botão sensorPIR (Ou saia com Ctrl + c): ')
 
@@ -66,7 +77,7 @@ def start():
     GPIO.output(portaoAberto, 1)
 
     registro = {
-        "matriz": 0,
+        "matrizId": 0,
         "dataEntrada": "",
         "dataSaida": "",
         "horaEntrada": "",
@@ -76,8 +87,7 @@ def start():
     }
 
     verificaVezes = 0
-    cursoAberturaControl = False
-    cursoFechamentoControl = False
+    podeSeparar = False
 
     while True:
         # ==== So teste dos leds porta 2 ========
@@ -112,58 +122,161 @@ def start():
             if portao is 1:
                 GPIO.output(portaoFechado, 0)
                 GPIO.output(portaoAberto, 0)
+
                 print("Fechando portão...")
+                time.sleep(5)
 
-            # Fim de curso, portão fechado
-            cursoFechamentoControl = GPIO.input(cursoFechamento) == 1
+                # Fim de curso, portão fechado
+                cursoFechamentoControl = GPIO.input(cursoFechamento) == 1
 
-            if cursoFechamentoControl:
-                print("Portão fechado")
-                GPIO.output(portaoAberto, 0)
-                GPIO.output(portaoFechado, 1)
-                portao = 0  # porta 1 fechada
+                if cursoFechamentoControl:
+                    print("Portão fechado")
+                    GPIO.output(portaoAberto, 0)
+                    GPIO.output(portaoFechado, 1)
+                    portao = 0  # porta 1 fechada
 
             # enquanto brinco não lido ficar tentando ler
             # brinco = None
             brinco = lerTag()
+            print('Matriz {} identificada'.format(brinco))
             brincoLido = brincoLido is None or '' in brinco
 
             if portao is 0 and fixarPIR is 1:
                 if brincoLido:
                     matriz = matrizes.getMatrizByRfid(brinco)
+
+                    if registro["dataEntrada"] is "":
+                        registro['dataEntrada'] = datetime.datetime.now().strftime(
+                            "%Y-%m-%d")
+
+                    if registro["horaEntrada"] is "":
+                        registro['horaEntrada'] = datetime.datetime.now().strftime(
+                            "%H:%M:%S"
+                        )
+
+                    if registro["matrizId"] is "":
+                        registro['matrizId'] = matriz['id']
+
                     confinamento = confinamentos.getConfinamentoByMatriz(
                         matriz['id']
                     )
 
-                    quantidade = confinamentos.getQuantityForMatriz(
+                    quantidade = int(confinamentos.getQuantityForMatriz(
+                        matriz['id']
+                    ))
+
+                    podeSeparar = confinamentos.canOpenDoor(
                         matriz['id']
                     )
 
-                    print('Matriz {} identificada'.format(brinco))
+                    # dia = confinamentos.getDaysInConfinament(
+                    #     matriz['id']
+                    # )
+
+                    # planoId = confinamento['planoId']
+
+                    # controls = {
+                    #     "planoId": planoId,
+                    #     "dia": dia,
+                    # }
+
+                    # quantidadeDia = dias.consultarDia(controls)
+
+                    verificarTotal = quantidadeTotal + 300
+
+                    if(verificarTotal <= quantidade):
+                        quantidadeTotal = quantidadeTotal + 300
+
                 else:
                     verificaVezes += 1
                     if verificaVezes is 10:
                         # gerar aviso
                         verificaVezes = 0
 
+        if podeSeparar:
+            cursoSepadorFechamentoControl = GPIO.input(
+                cursoSepadorFechamento) == 1
+
+            if cursoSepadorFechamentoControl:
+                print("Abrindo portão do separador...")
+                time.sleep(5)
+
+                cursoSepadorAberturaControl = GPIO.input(
+                    cursoSepadorAbertura) == 1
+                if cursoSepadorAberturaControl:
+                    GPIO.output(portaoSeparadorAberto, 1)
+                    GPIO.output(portaoSeparadorFechado, 0)
+                    print("Portão separador aberto")
+
         if(fixarPIR == 0):
             brincoLido = 0
+
+            cursoSepadorAberturaControl = GPIO.input(
+                cursoSepadorAbertura) == 1
+            if cursoSepadorAberturaControl:
+                if podeSeparar:
+                    print("Fechando porta do separador....")
+                    time.sleep(5)
+
+                    cursoSepadorFechamentoControl = GPIO.input(
+                        cursoSepadorFechamento) == 1
+                    if cursoSepadorFechamentoControl:
+                        GPIO.output(portaoSeparadorAberto, 0)
+                        GPIO.output(portaoSeparadorFechado, 1)
+                        print("Portão separador fechado")
+
             cursoFechamentoControl = GPIO.input(cursoFechamento) == 1
-            cursoAberturaControl = GPIO.input(cursoAbertura) == 1
-
-            # Se portão fechado e não leu o PIR, então abrir
-            if cursoAberturaControl:
-                GPIO.output(portaoAberto, 0)
-                GPIO.output(portaoFechado, 1)
-
-            print("Abrindo portão...")
-
-            # Fim de curso, e portão fechada
             if cursoFechamentoControl:
-                GPIO.output(portaoAberto, 1)
-                GPIO.output(portaoFechado, 0)
-                print("Portão aberto")
-                portao = 1  # Portão aberto
+                print("Abrindo portão...")
+                time.sleep(5)
+
+                cursoAberturaControl = GPIO.input(cursoAbertura) == 1
+                # Fim de curso, e portão fechada
+                if cursoAberturaControl:
+                    GPIO.output(portaoAberto, 1)
+                    GPIO.output(portaoFechado, 0)
+                    print("Portão aberto")
+                    portao = 1  # Portão aberto
+
+                    registro['dataSaida'] = datetime.datetime.now().strftime(
+                        "%Y-%m-%d")
+                    registro['horaSaida'] = datetime.datetime.now().strftime(
+                        "%H:%M:%S"
+                    )
+
+                    entrada = registro['dataEntrada'] + \
+                        '' + registro['horaEntrada']
+                    saida = registro['dataSaida'] + " " + registro['horaSaida']
+
+                    horaEntrada = datetime.datetime.strptime(
+                        registro['dataEntrada'] + ' ' +
+                        registro['horaEntrada'], "%Y-%m-%d %H:%M:%S"
+                    )
+
+                    horaSaida = datetime.datetime.strptime(
+                        registro['dataSaida'] + ' ' +
+                        registro['horaSaida'], "%Y-%m-%d %H:%M:%S"
+                    )
+
+                    tempo = horaSaida - horaEntrada
+
+                    registro['tempo'] = str(tempo.seconds)
+
+                    registro['quantidade'] = quantidadeTotal
+
+                    registros.insertRegistro(registro)
+
+                    registro = {
+                        "matrizId": 0,
+                        "dataEntrada": "",
+                        "dataSaida": "",
+                        "horaEntrada": "",
+                        "horaSaida": "",
+                        "tempo": "",
+                        "quantidade": 0
+                    }
+
+                    quantidadeTotal = 0
 
 
 if __name__ == "__main__":

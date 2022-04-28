@@ -8,18 +8,20 @@ import json
 urlBase = "http://192.168.0.104:5000/api/v1/registros/"
 
 
-def getMatrizByRfid(registro):
+def insertRegistro(registro):
     try:
-        resp = requests.post(f'{urlBase}insert/', data=registro)
+        headers = 'Content-Type'
+        resp = requests.post(f'{urlBase}insert',
+                             data=registro, headers=headers)
 
         if resp.ok is not True:
             raise ConnectionError("Error")
-        
+
         teste = json.loads(resp.text)
-        
+
         print(teste["id"])
 
         return json.loads(resp.text)
-    
+
     except ConnectionError as ex:
         return ex.args[0]
