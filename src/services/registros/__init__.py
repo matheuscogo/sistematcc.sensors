@@ -10,12 +10,11 @@ urlBase = "http://192.168.0.104:5000/api/v1/registros/"
 
 def insertRegistro(registro):
     try:
-        headers = 'Content-Type'
         resp = requests.post(f'{urlBase}insert',
-                             data=registro, headers=headers)
+                             json=registro)
 
         if resp.ok is not True:
-            raise ConnectionError("Error")
+            raise ConnectionError
 
         teste = json.loads(resp.text)
 

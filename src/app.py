@@ -68,6 +68,7 @@ def start():
     fixarPIR = 0  # simular sensor PIR
     portao = 1  # porta 1 aberta (0 ou 1)
     separador = 1  # porta 2 aberta (0 ou 1)
+    brinco = ''  # animal na maquina e brinco lido (1), sai da maquina (0)
     brincoLido = 0  # animal na maquina e brinco lido (1), sai da maquina (0)
     quantidadeTotal = 0
 
@@ -118,8 +119,9 @@ def start():
                 # Simular que PIR esta detectando presença
                 fixarPIR = 1
 
-            # Se portão estiver aberto, então fechar
-            if portao is 1:
+            # Fim de curso, portão fechado
+            cursoAberturaControl = GPIO.input(cursoAbertura) == 1
+            if cursoAberturaControl:
                 GPIO.output(portaoFechado, 0)
                 GPIO.output(portaoAberto, 0)
 
@@ -128,18 +130,17 @@ def start():
 
                 # Fim de curso, portão fechado
                 cursoFechamentoControl = GPIO.input(cursoFechamento) == 1
-
                 if cursoFechamentoControl:
                     print("Portão fechado")
                     GPIO.output(portaoAberto, 0)
                     GPIO.output(portaoFechado, 1)
-                    portao = 0  # porta 1 fechada
+                    portao = 0  # porta 0 fechada
 
-            # enquanto brinco não lido ficar tentando ler
-            # brinco = None
-            brinco = lerTag()
-            print('Matriz {} identificada'.format(brinco))
-            brincoLido = brincoLido is None or '' in brinco
+                    # enquanto brinco não lido ficar tentando ler
+                    # brinco = None
+                    brinco = lerTag()
+                    print('Matriz {} identificada'.format(brinco))
+                    brincoLido = brincoLido is None or '' in brinco
 
             if portao is 0 and fixarPIR is 1:
                 if brincoLido:
@@ -154,7 +155,7 @@ def start():
                             "%H:%M:%S"
                         )
 
-                    if registro["matrizId"] is "":
+                    if registro["matrizId"] is 0:
                         registro['matrizId'] = matriz['id']
 
                     confinamento = confinamentos.getConfinamentoByMatriz(
@@ -210,6 +211,7 @@ def start():
 
         if(fixarPIR == 0):
             brincoLido = 0
+            brinco = ''
 
             cursoSepadorAberturaControl = GPIO.input(
                 cursoSepadorAbertura) == 1
