@@ -16,10 +16,6 @@ def insertRegistro(registro):
         if resp.ok is not True:
             raise ConnectionError
 
-        teste = json.loads(resp.text)
-
-        print(teste["id"])
-
         return json.loads(resp.text)
 
     except ConnectionError as ex:

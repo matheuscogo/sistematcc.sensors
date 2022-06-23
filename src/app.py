@@ -24,17 +24,17 @@ cursoSepadorAbertura = 35  # porta2Aberta
 # Botão do portão separador(curso fechado)
 cursoSepadorFechamento = 37  # porta2Fechada
 
-# Portão aberto(led verde)
-portaoAberto = 36
+# Portão abrindo(led verde)
+portaoAbrindo = 36
 
-# Portão fechado(led vermelho)
-portaoFechado = 32
+# Portão fechando(led vermelho)
+portaoFechando = 32
 
-# Portão do separador aberto(led verde)
-portaoSeparadorAberto = 40
+# Portão do separador abrindo(led verde)
+portaoSeparadorAbrindo = 40
 
-# Portão do separador fechada(led vermelho)
-portaoSeparadorFechado = 38
+# Portão do separador fechando(led vermelho)
+portaoSeparadorFechando = 38
 
 GPIO.setmode(GPIO.BOARD)  # Définit le mode de numérotation (Board)
 GPIO.setwarnings(False)  # On désactive les messages d'alerte
@@ -44,10 +44,10 @@ GPIO.setup(cursoAbertura, GPIO.OUT)
 GPIO.setup(cursoFechamento, GPIO.OUT)
 GPIO.setup(cursoSepadorAbertura, GPIO.OUT)
 GPIO.setup(cursoSepadorFechamento, GPIO.OUT)
-GPIO.setup(portaoAberto, GPIO.OUT)
-GPIO.setup(portaoFechado, GPIO.OUT)
-GPIO.setup(portaoSeparadorAberto, GPIO.OUT)
-GPIO.setup(portaoSeparadorFechado, GPIO.OUT)
+GPIO.setup(portaoAbrindo, GPIO.OUT)
+GPIO.setup(portaoFechando, GPIO.OUT)
+GPIO.setup(portaoSeparadorAbrindo, GPIO.OUT)
+GPIO.setup(portaoSeparadorFechando, GPIO.OUT)
 
 
 def lerTag():  # retorna brinco aleatoriamente
@@ -67,7 +67,7 @@ cursoSepadorFechamentoControl = GPIO.input(
 def start():
     fixarPIR = 0  # simular sensor PIR
     portao = 1  # porta 1 aberta (0 ou 1)
-    separador = 1  # porta 2 aberta (0 ou 1)
+    separador = 0  # porta 2 aberta (0 ou 1)
     brinco = ''  # animal na maquina e brinco lido (1), sai da maquina (0)
     brincoLido = 0  # animal na maquina e brinco lido (1), sai da maquina (0)
     quantidadeTotal = 0
@@ -75,7 +75,6 @@ def start():
     print('Aperte botão sensorPIR (Ou saia com Ctrl + c): ')
 
     horaVeficada = datetime.datetime.today().hour
-    GPIO.output(portaoAberto, 1)
 
     registro = {
         "matrizId": 0,
@@ -93,16 +92,16 @@ def start():
     while True:
         # ==== So teste dos leds porta 2 ========
         if(GPIO.input(cursoSepadorFechamento) == 1):
-            GPIO.output(portaoSeparadorFechado, 1)
+            GPIO.output(portaoSeparadorFechando, 1)
             # print("Portão separador fechando...")
         else:
-            GPIO.output(portaoSeparadorFechado, 0)
+            GPIO.output(portaoSeparadorFechando, 0)
 
         if(GPIO.input(cursoSepadorAbertura) == 1):
             # print("Portão separador fechando...")
-            GPIO.output(portaoSeparadorAberto, 1)
+            GPIO.output(portaoSeparadorAbrindo, 1)
         else:
-            GPIO.output(portaoSeparadorAberto, 0)
+            GPIO.output(portaoSeparadorAbrindo, 0)
 
         if datetime.datetime.today().hour - horaVeficada > 24:
             confinamentos.verifyDaysToOpen()
@@ -119,25 +118,20 @@ def start():
                 # Simular que PIR esta detectando presença
                 fixarPIR = 1
 
-            # Fim de curso, portão fechado
-            cursoAberturaControl = GPIO.input(cursoAbertura) == 1
-            if cursoAberturaControl:
-                GPIO.output(portaoFechado, 0)
-                GPIO.output(portaoAberto, 0)
-
+            if portao is 1:
                 print("Fechando portão...")
-                time.sleep(5)
+                GPIO.output(portaoFechando, 1)
 
-                # Fim de curso, portão fechado
-                cursoFechamentoControl = GPIO.input(cursoFechamento) == 1
-                if cursoFechamentoControl:
-                    print("Portão fechado")
-                    GPIO.output(portaoAberto, 0)
-                    GPIO.output(portaoFechado, 1)
-                    portao = 0  # porta 0 fechada
+            # Fim de curso, portão fechado
+            cursoFechamentoControl = GPIO.input(cursoFechamento) == 1
+            if cursoFechamentoControl:
+                GPIO.output(portaoFechando, 0)
+                print("Portão fechado")
+                portao = 0  # porta 0 fechada
 
-                    # enquanto brinco não lido ficar tentando ler
-                    # brinco = None
+                # enquanto brinco não lido ficar tentando ler
+                # brinco = None
+                if brinco is '':
                     brinco = lerTag()
                     print('Matriz {} identificada'.format(brinco))
                     brincoLido = brincoLido is None or '' in brinco
@@ -145,6 +139,9 @@ def start():
             if portao is 0 and fixarPIR is 1:
                 if brincoLido:
                     matriz = matrizes.getMatrizByRfid(brinco)
+
+                    if registro["matrizId"] is 0:
+                        registro['matrizId'] = matriz['id']
 
                     if registro["dataEntrada"] is "":
                         registro['dataEntrada'] = datetime.datetime.now().strftime(
@@ -155,100 +152,67 @@ def start():
                             "%H:%M:%S"
                         )
 
-                    if registro["matrizId"] is 0:
-                        registro['matrizId'] = matriz['id']
-
-                    confinamento = confinamentos.getConfinamentoByMatriz(
-                        matriz['id']
-                    )
-
-                    quantidade = int(confinamentos.getQuantityForMatriz(
-                        matriz['id']
-                    ))
-
                     podeSeparar = confinamentos.canOpenDoor(
                         matriz['id']
                     )
 
-                    # dia = confinamentos.getDaysInConfinament(
-                    #     matriz['id']
-                    # )
+                    quantidadeDia = int(confinamentos.getQuantityForMatriz(
+                        matriz['id']
+                    ))
 
-                    # planoId = confinamento['planoId']
-
-                    # controls = {
-                    #     "planoId": planoId,
-                    #     "dia": dia,
-                    # }
-
-                    # quantidadeDia = dias.consultarDia(controls)
-
-                    verificarTotal = quantidadeTotal + 300
-
-                    if(verificarTotal <= quantidade):
+                    time.sleep(10)
+                    if((quantidadeTotal + 300) <= quantidadeDia):
+                        # Liberar comida
+                        print("Liberando comida...")
                         quantidadeTotal = quantidadeTotal + 300
 
                 else:
                     verificaVezes += 1
                     if verificaVezes is 10:
                         # gerar aviso
+                        # Realizar a verificação por tempo
                         verificaVezes = 0
 
         if podeSeparar:
-            cursoSepadorFechamentoControl = GPIO.input(
-                cursoSepadorFechamento) == 1
+            print("Abrindo portão do separador...")
+            GPIO.output(portaoSeparadorAbrindo, 1)
 
-            if cursoSepadorFechamentoControl:
-                print("Abrindo portão do separador...")
-                time.sleep(5)
-
-                cursoSepadorAberturaControl = GPIO.input(
-                    cursoSepadorAbertura) == 1
-                if cursoSepadorAberturaControl:
-                    GPIO.output(portaoSeparadorAberto, 1)
-                    GPIO.output(portaoSeparadorFechado, 0)
-                    print("Portão separador aberto")
+            cursoSepadorAberturaControl = GPIO.input(
+                cursoSepadorAbertura) == 1
+            if cursoSepadorAberturaControl:
+                GPIO.output(portaoSeparadorAbrindo, 0)
+                print("Portão separador aberto")
+                separador = 1
 
         if(fixarPIR == 0):
             brincoLido = 0
             brinco = ''
 
-            cursoSepadorAberturaControl = GPIO.input(
-                cursoSepadorAbertura) == 1
-            if cursoSepadorAberturaControl:
-                if podeSeparar:
-                    print("Fechando porta do separador....")
-                    time.sleep(5)
+            registro['dataSaida'] = datetime.datetime.now().strftime(
+                "%Y-%m-%d")
+            registro['horaSaida'] = datetime.datetime.now().strftime(
+                "%H:%M:%S")
 
-                    cursoSepadorFechamentoControl = GPIO.input(
-                        cursoSepadorFechamento) == 1
-                    if cursoSepadorFechamentoControl:
-                        GPIO.output(portaoSeparadorAberto, 0)
-                        GPIO.output(portaoSeparadorFechado, 1)
-                        print("Portão separador fechado")
+            if separador is 1:
+                print("Fechando porta do separador....")
+                GPIO.output(portaoSeparadorFechando, 1)
 
-            cursoFechamentoControl = GPIO.input(cursoFechamento) == 1
-            if cursoFechamentoControl:
+                cursoSepadorAberturaControl = GPIO.input(
+                    cursoSepadorAbertura) == 1
+                if cursoSepadorAberturaControl:
+                    GPIO.output(portaoSeparadorFechando, 0)
+                    print("Portão separador fechado")
+                    separador = 0
+
+            if portao is 0:
                 print("Abrindo portão...")
-                time.sleep(5)
+                GPIO.output(portaoAbrindo, 1)
 
                 cursoAberturaControl = GPIO.input(cursoAbertura) == 1
                 # Fim de curso, e portão fechada
                 if cursoAberturaControl:
-                    GPIO.output(portaoAberto, 1)
-                    GPIO.output(portaoFechado, 0)
+                    GPIO.output(portaoAbrindo, 0)
                     print("Portão aberto")
-                    portao = 1  # Portão aberto
-
-                    registro['dataSaida'] = datetime.datetime.now().strftime(
-                        "%Y-%m-%d")
-                    registro['horaSaida'] = datetime.datetime.now().strftime(
-                        "%H:%M:%S"
-                    )
-
-                    entrada = registro['dataEntrada'] + \
-                        '' + registro['horaEntrada']
-                    saida = registro['dataSaida'] + " " + registro['horaSaida']
 
                     horaEntrada = datetime.datetime.strptime(
                         registro['dataEntrada'] + ' ' +
@@ -279,6 +243,8 @@ def start():
                     }
 
                     quantidadeTotal = 0
+
+                    portao = 1  # Portão aberto
 
 
 if __name__ == "__main__":
