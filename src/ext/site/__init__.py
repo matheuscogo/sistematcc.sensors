@@ -1,5 +1,5 @@
 from .view.index import bp_index
-from .view.matrizes import bp_matrizes
+# from .view.matrizes import bp_matrizes
 from .view.registros import bp_registros
 from .view.cadastrarMatriz import bp_cadastrarMatriz
 from .controller.routes import bp_controller
@@ -15,7 +15,7 @@ from .view.cadastrarConfinamentro import bp_cadastrarConfinamento
 
 def init_app(app):
     app.register_blueprint(bp_index)
-    app.register_blueprint(bp_matrizes)
+    # app.register_blueprint(bp_matrizes)
     app.register_blueprint(bp_registros)
     app.register_blueprint(bp_cadastrarMatriz)
     app.register_blueprint(bp_controller)

@@ -1,3 +1,12 @@
+from ext.config import sensors
+
+
+def init_app(GPIO):
+    GPIO.setup(sensors.sensorPIR, GPIO.IN)
+
+
+def read(GPIO):
+    return GPIO.input(sensors.sensorPIR) == 1
 
 
 def motionSensor(hasMove):

@@ -1,4 +1,32 @@
+from ext.config import sensors
+from ext.site.controller import button
 import time
+
+
+def init_app(GPIO):
+    GPIO.setup(sensors.portaoAbrindo, GPIO.OUT)
+    GPIO.setup(sensors.portaoFechando, GPIO.OUT)
+    GPIO.setup(sensors.portaoSeparadorAbrindo, GPIO.OUT)
+    GPIO.setup(sensors.portaoSeparadorFechando, GPIO.OUT)
+
+
+def open(GPIO):
+    print("Abrindo portão....")
+    GPIO.output(sensors.portaoAbrindo, 1)
+    if button.opened(GPIO):
+        GPIO.output(sensors.portaoAbrindo, 0)
+        return True
+
+    return False
+
+
+def close(GPIO):
+    while button.closed(GPIO) is not True:
+        GPIO.output(sensors.portaoFechando, 1)
+        print("Fechando portão....")
+
+    GPIO.output(sensors.portaoFechando, 0)
+    print("Portão fechado")
 
 
 def porta(acao):

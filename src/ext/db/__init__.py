@@ -1,12 +1,10 @@
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
+from sqlalchemy.orm import declarative_base, Session
+from sqlalchemy import create_engine
 
-db = SQLAlchemy()
-migrate = Migrate()
-ma = Marshmallow()
+db = declarative_base()
+engine = create_engine("sqlite:///src/sistemaTCC.db", echo=True, future=True)
+session = Session(engine, future=True)
 
-def init_app(app):
-    db.init_app(app)
-    migrate.init_app(app, db)
-    ma.init_app(app)
+
+def init_app():
+    db.metadata.create_all(engine)

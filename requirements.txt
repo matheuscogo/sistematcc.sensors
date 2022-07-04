@@ -1,1 +1,5 @@
 responses
+sqlalchemy
+RPi.GPIO
+sqlite_web
+schedule

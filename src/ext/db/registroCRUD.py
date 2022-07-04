@@ -1,32 +1,21 @@
+from services import registros
 from ..site.model import Registro
-from ..site.model.Registro import RegistroSchema
 from ..db import db
 from werkzeug.wrappers import Response, Request
 import json
 
 
-def cadastrarRegistro(args):  # Create
+def cadastrarRegistro(registro):  # Create
     try:
-        matriz = args['matriz']
-        dataEntrada = args['dataEntrada']
-        dataSaida = args['dataSaida']
-        horaEntrada = args['horaEntrada']
-        horaSaida = args['horaSaida']
-        tempo = args['tempo']
-        quantidade = args['quantidade']
-        db.session.add(Registro.Registro(
-            matriz=matriz,
-            dataEntrada=dataEntrada,
-            dataSaida=dataSaida,
-            horaEntrada=horaEntrada,
-            horaSaida=horaSaida,
-            tempo=tempo,
-            quantidade=quantidade
-        ))
+        if registro is None:
+            raise BaseException("Registro não passado para o controlador")
+
+        db.session.add(registro)
         db.session.commit()
-        return Response(response=json.dumps("{success: true, message: Registro cadastrado com sucesso!, response: null}"), status=200)
+
+        return registro
     except BaseException as e:
-        return Response(response=json.dumps("{success: false, message: " + e.args[0] + ", response: null}"), status=501)
+        return e.args[0]
 
 
 def consultarRegistros():  # Read
@@ -36,15 +25,15 @@ def consultarRegistros():  # Read
             raise BaseException("Erro ao consultar no banco de dados")
         return registros
     except BaseException as e:
-        return Response(response=json.dumps("{success: false, message: " + e.args[0] + ", response: null}"), status=501)
+        return e.args[0]
 
 
-def consultarRegistro(id): # Read
+def consultarRegistro(id):  # Read
     try:
         registro = db.session.query(Registro.Registro).filter_by(id=id).first()
         if not registro:
             raise BaseException("Erro ao cadastrar no banco")
-        return  RegistroSchema().dump(registro)
+        return registro
     except BaseException as e:
         return Response(response=json.dumps("{success: false, message: " + e.args[0] + ", response: null}"), status=501)
 
@@ -81,4 +70,4 @@ def excluirRegistro(id):  # Delete
         db.session.commit()
         return Response(response=json.dumps("{success: true, message: Registro excluido com sucesso!, response: null}"), status=200)
     except BaseException as e:
-        return Response(response=json.dumps("{success: false, message: "+ e.args[0] +", response: null}"), status=501)
+        return Response(response=json.dumps("{success: false, message: " + e.args[0] + ", response: null}"), status=501)

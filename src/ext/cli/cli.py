@@ -6,6 +6,7 @@ from ..site.model import Dia
 from ..site.model import Plano
 from ..site.model import Registro
 from ..site.model import Inseminacao
+from ..site.model import Aviso
 
 
 def create_db():
