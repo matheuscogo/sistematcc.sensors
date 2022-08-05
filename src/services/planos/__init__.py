@@ -5,7 +5,7 @@ from requests.exceptions import ConnectionError
 import json
 
 # urlBase = "http://localhost:5000/api/v1/planos/"
-urlBase = "http://192.168.0.104:5000/api/v1/planos/"
+urlBase = "http://192.168.0.107:5000/api/v1/planos/"
 
 
 # def consultarDia(data):

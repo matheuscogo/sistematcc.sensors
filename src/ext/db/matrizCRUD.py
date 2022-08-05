@@ -1,7 +1,12 @@
+from datetime import datetime
 from ..site.model import Matriz
+from ..site.model import Confinamento
+from ..site.model import Plano
+from ..site.model import Dia
 from ..db import session
 from werkzeug.wrappers import Response, Request
 import json
+import uuid
 
 
 def cadastrarMatriz(args):  # Create
@@ -73,6 +78,19 @@ def excluirMatriz(id):  # Delete
 def consultarMatrizRFID(rfid):  # Read
     try:
         matriz = session.query(Matriz).filter_by(rfid=rfid).first()
+
+        confinamento = session.query(Confinamento).filter_by(
+            matrizId=matriz.id).first()
+
+        day = (confinamento.dataConfinamento - datetime.now()).day
+
+        dia = session.query(Dia).filter_by(
+            id=confinamento.planoId, dia=day).first()
+
+        matriz.hash = uuid.uuid4()
+        matriz.entrada = datetime.now()
+        confinamento
+
         return matriz
     except Exception as e:
         return e.args[0]

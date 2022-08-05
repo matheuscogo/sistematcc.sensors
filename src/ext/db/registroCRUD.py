@@ -1,6 +1,5 @@
 from services import registros
 from ..site.model import Registro
-from ..db import db
 from werkzeug.wrappers import Response, Request
 import json
 
@@ -10,8 +9,8 @@ def cadastrarRegistro(registro):  # Create
         if registro is None:
             raise BaseException("Registro não passado para o controlador")
 
-        db.session.add(registro)
-        db.session.commit()
+        # db.session.add(registro)
+        # db.session.commit()
 
         return registro
     except BaseException as e:
@@ -20,7 +19,7 @@ def cadastrarRegistro(registro):  # Create
 
 def consultarRegistros():  # Read
     try:
-        registros = db.session.query(Registro.Registro).all()
+        # registros = db.session.query(Registro.Registro).all()
         if not registros:
             raise BaseException("Erro ao consultar no banco de dados")
         return registros
@@ -30,10 +29,10 @@ def consultarRegistros():  # Read
 
 def consultarRegistro(id):  # Read
     try:
-        registro = db.session.query(Registro.Registro).filter_by(id=id).first()
-        if not registro:
-            raise BaseException("Erro ao cadastrar no banco")
-        return registro
+        # registro = db.session.query(Registro.Registro).filter_by(id=id).first()
+        # if not registro:
+        raise BaseException("Erro ao cadastrar no banco")
+        # return registro
     except BaseException as e:
         return Response(response=json.dumps("{success: false, message: " + e.args[0] + ", response: null}"), status=501)
 
@@ -57,7 +56,7 @@ def atualizarRegistro(args):  # Update
         registro.horaSaida = horaSaida
         registro.tempo = tempo
         registro.quantidade = quantidade
-        db.session.commit()
+        # db.session.commit()
         return Response(response=json.dumps("{success: true, message: Registro atualizado com sucesso!, response: null}"), status=200)
     except BaseException as e:
         return Response(response=json.dumps("{success: false, message: " + e.args[0] + ", response: null}"), status=501)
@@ -65,9 +64,9 @@ def atualizarRegistro(args):  # Update
 
 def excluirRegistro(id):  # Delete
     try:
-        registro = db.session.query(Registro.Registro).filter_by(id=id).first()
-        db.session.delete(registro)
-        db.session.commit()
+        # registro = db.session.query(Registro.Registro).filter_by(id=id).first()
+        # db.session.delete(registro)
+        # db.session.commit()
         return Response(response=json.dumps("{success: true, message: Registro excluido com sucesso!, response: null}"), status=200)
     except BaseException as e:
         return Response(response=json.dumps("{success: false, message: " + e.args[0] + ", response: null}"), status=501)

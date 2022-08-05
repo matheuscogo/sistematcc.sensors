@@ -1,3 +1,4 @@
+from ext.db import matrizCRUD
 from services import confinamentos
 from services import matrizes
 from services import avisos
@@ -52,51 +53,55 @@ def start(gpio):
 
     print('Aperte botão sensorPIR (Ou saia com Ctrl + c): ')
 
-    registro = {
-        "matrizId": 0,
-        "dataEntrada": "",
-        "dataSaida": "",
-        "horaEntrada": "",
-        "horaSaida": "",
-        "tempo": "",
-        "quantidade": 0
-    }
+    # registro = {
+    #     "matrizId": 0,
+    #     "dataEntrada": "",
+    #     "dataSaida": "",
+    #     "horaEntrada": "",
+    #     "horaSaida": "",
+    #     "tempo": "",
+    #     "quantidade": 0
+    # }
 
-    verificaVezes = 0
-    podeSeparar = False
+    # verificaVezes = 0  
+    # podeSeparar = False
 
     matrizReaded = None
     registro = None
-    dataEntrada = None
+    entrada = None
+    saida = None
 
     while True:
         try:
             if pir.read(gpio):
                 if matrizReaded is None:
-                    # matrizReaded = rfid.read()
+                    matrizReaded = rfid.read()
 
-                    if matrizReaded is None:
-                        if dataEntrada is not None:
-                            if datetime.now().second - dataEntrada.second > 30:
-                                print("Matriz sem brinco aviso.")
+                if entrada is None and matrizReaded is None:
+                    entrada = datetime.now()
 
-                                registro = Registro(
-                                    matrizId=matrizReaded.id,
-                                    dataEntrada=datetime.now()
-                                )
-                        else:
-                            dataEntrada = datetime.now()
+                if entrada is not None:
+                    if (datetime.now() - entrada).seconds > 30:
+                        print("Matriz sem brinco aviso.")
 
-                # registro = Registro(
-                #     matrizId=matrizReaded.id,
-                #     dataEntrada=datetime.now()
-                # )
+                if matrizReaded is not None:
+                    process(matrizReaded)
 
-                if button.opened(gpio) and rfid.readed(matrizReaded):
-                    motor.close(gpio)
+            elif not pir.read(gpio):
+                if saida is None and matrizReaded is not None:
+                    saida = datetime.now()
 
-                if button.closed(gpio) and rfid.readed(matrizReaded):
-                    print("Inicio do processo.")
+                if (datetime.now() - saida).seconds > 5 and button.closed(gpio):
+                    # Salva os dados no banco e abre a porta
+                    print("Salvando os dados....")
+                    time.sleep(5)
+
+                    matrizReaded = None
+                    registro = None
+                    entrada = None
+                    saida = None
+
+                    motor.open(gpio)
 
         except Exception as e:
             print(e.args[0])
@@ -238,6 +243,25 @@ def start(gpio):
         #             quantidadeTotal = 0
 
         #             portao = 1  # Portão aberto
+
+
+def clean():
+    matrizReaded = None
+    registro = None
+    entrada = None
+    saida = None
+
+
+def process(matrizReaded):
+    if registro is None:
+        registro = Registro(
+            matrizId=matrizReaded.id,
+            dataEntrada=datetime.now(),
+            quantidade=0
+        )
+
+    if registro.quantidade <= matrizReaded.quantidadeTotal:
+        registro.quantidade = motor.feed(GPIO)
 
 
 def leds():

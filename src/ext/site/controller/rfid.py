@@ -5,6 +5,7 @@ from datetime import datetime
 
 readDate = None
 
+
 def init_app(GPIO):
     # GPIO.setup(sensors.sensorPIR, GPIO.IN)
     # GPIO.setup(sensors.cursoAbertura, GPIO.OUT)
@@ -23,8 +24,9 @@ def read():  # retorna brinco aleatoriamente
     r = random.randrange(0, 2, 1)  # inicia em 0 com 2 valores de 1 em 1 (0-1)
     brinco = tag[0]
     matriz = matrizCRUD.consultarMatrizRFID(brinco)
+    print('Matriz {} identificada'.format(matriz.rfid))
+
     if matriz is not None:
-        print('Matriz {} identificada'.format(matriz.rfid))
         return matriz
 
     return None

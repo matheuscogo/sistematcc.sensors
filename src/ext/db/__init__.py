@@ -1,5 +1,6 @@
 from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy import create_engine
+import json
 
 db = declarative_base()
 engine = create_engine("sqlite:///src/sistemaTCC.db", echo=True, future=True)
