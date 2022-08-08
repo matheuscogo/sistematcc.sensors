@@ -1,30 +1,28 @@
+from datetime import datetime
 from ext.site.model import Matriz
-from ext.site.model import Dia
 from ext.site.model import Confinamento
-# from ext.site.model import Dia
-from ext.db import session
+from ext.site.model import Alimentador
+from ext.site.model import Dia
+from ext.db import session, func
 from werkzeug.wrappers import Response
 import json
-from datetime import datetime
 import uuid
 
 
-def cadastrarMatriz(args):  # Create
+def cadastrarAlimentador(alimentador):  # Create
     try:
-        numero = str(args['numero'])
-        rfid = str(args['rfid'])
-        ciclos = str(args['ciclos'])
-        db.session.add(Matriz.Matriz(rfid=rfid, numero=numero, ciclos=ciclos))
-        db.session.commit()
-        return Response(response=json.dumps("{success: true, message: Matriz cadastrada com sucesso!, response: null}"), status=200)
+        session.add(alimentador)
+        session.commit()
+        return Response(response=json.dumps("{success: true, message: Alimentador cadastrada com sucesso!, response: null}"), status=200)
     except BaseException as e:
         return Response(response=json.dumps("{success: false, message: " + e.args[0] + ", response: null}"), status=501)
 
 
-def consultarMatrizes():  # Read
+def consultarAlimentadores(hash):  # Read
     try:
-        matrizes = db.session.query(Matriz.Matriz).all()
-        return matrizes
+        alimentador = session.query(func.sum(
+            Alimentador.quantidade).label("quantidadeTotal"), Alimentador.hash, Alimentador.matrizId).filter_by(hash=hash).group_by(Alimentador.hash).first()
+        return alimentador
     except BaseException as e:
         return Response(response=json.dumps("{success: false, message: " + e.args[0] + ", response: null}"), status=501)
 
@@ -77,26 +75,19 @@ def excluirMatriz(id):  # Delete
 
 def consultarMatrizRFID(rfid):  # Read
     try:
-        matriz = session.query(Matriz).filter_by(
-            rfid=rfid, deleted=False).first()
+        matriz = session.query(Matriz).filter_by(rfid=rfid).first()
 
-        if matriz is None:
-            return None
+        confinamento = session.query(Confinamento).filter_by(
+            matrizId=matriz.id).first()
 
+        day = (confinamento.dataConfinamento - datetime.now()).day
+
+        dia = session.query(Dia).filter_by(
+            id=confinamento.planoId, dia=day).first()
+
+        matriz.hash = uuid.uuid4()
         matriz.entrada = datetime.now()
-        matriz.hash = str(uuid.uuid4())
-
-        matriz.confinamento = session.query(Confinamento).filter_by(
-            matrizId=matriz.id, active=True).first()
-
-        if matriz.confimamento is not None:
-            day = (matriz.confinamento.dataConfinamento - datetime.now()).day
-
-            matriz.dia = session.query(Dia).filter_by(
-                id=matriz.confinamento.planoId, dia=day).first()
-
-        matriz.quantidadeTotal = matriz.dia.quantidade
-        matriz.quantidade = 0
+        confinamento
 
         return matriz
     except Exception as e:
@@ -121,7 +112,7 @@ def existsNumero(numero):
     else:
         return True
 
-# INSERT INTO planos(id, nome, descricao, tipo, quantidadeDias, deleted, active) VALUES (1, "Plano Teste 01", "Plano para teste 01", "Gestação", 114, False, True)
+
 # def consultarMatrizRFID(rfid):  # Read
 #     try:
 #         matriz = db.session.query(

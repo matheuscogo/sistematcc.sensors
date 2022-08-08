@@ -1,10 +1,10 @@
-from sqlalchemy.orm import declarative_base, Session
-from sqlalchemy import create_engine
-import json
+from sqlalchemy.orm import Session, declarative_base
+from sqlalchemy import create_engine, func
 
 db = declarative_base()
 engine = create_engine("sqlite:///src/sistemaTCC.db", echo=True, future=True)
 session = Session(engine, future=True)
+func = func
 
 
 def init_app():

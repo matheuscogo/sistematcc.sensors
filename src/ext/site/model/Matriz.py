@@ -1,6 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
-from ...db import db
+from sqlalchemy import Column, Integer, String, Boolean
+from ext.db import db
 
 
 class Matriz(db):

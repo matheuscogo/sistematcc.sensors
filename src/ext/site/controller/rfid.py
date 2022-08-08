@@ -1,7 +1,5 @@
 import random
-from ext.config import sensors
 from ext.db import matrizCRUD
-from datetime import datetime
 
 readDate = None
 

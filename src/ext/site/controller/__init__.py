@@ -1,16 +1,10 @@
-from ext.db import matrizCRUD
-from services import confinamentos
-from services import matrizes
-from services import avisos
-from services import registros
-from services import dias
+from ext.site.model import Alimentador
 from ext.site.model import Registro
-from ext.site.model import Matriz
 from ext.site.controller import rfid
 from ext.site.controller import button
+from ext.site.controller import process
 from ext.site.controller import pir
 from ext.site.controller import motor
-import random
 import time
 from datetime import datetime
 from ext.config import sensors
@@ -63,7 +57,7 @@ def start(gpio):
     #     "quantidade": 0
     # }
 
-    # verificaVezes = 0  
+    # verificaVezes = 0
     # podeSeparar = False
 
     matrizReaded = None
@@ -85,22 +79,38 @@ def start(gpio):
                         print("Matriz sem brinco aviso.")
 
                 if matrizReaded is not None:
-                    process(matrizReaded)
+                    if matrizReaded.quantidade <= matrizReaded.quantidadeTotal:
+                        alimentador = Alimentador(
+                            matrizId=matrizReaded.id,
+                            dataEntrada=matrizReaded.entrada,
+                            quantidade=matrizReaded.quantidade+300,
+                            confinamentoId=matrizReaded.confinamento.id,
+                            planoId=matrizReaded.confinamento.planoId,
+                            hash=matrizReaded.hash,
+                        )
 
-            elif not pir.read(gpio):
-                if saida is None and matrizReaded is not None:
-                    saida = datetime.now()
+                        matrizReaded.quantidade = motor.feed(alimentador)
+
+            elif not pir.read(gpio) and matrizReaded is not None:
+                saida = datetime.now()
 
                 if (datetime.now() - saida).seconds > 5 and button.closed(gpio):
+                    teste = process.query(matrizReaded.hash)
+                    registro = Registro(
+                        matrizId=teste.matrizId,
+                        dataEntrada=matrizReaded.entrada,
+                        dataSaida=datetime.now(),
+                        tempo=(datetime.now() - matrizReaded.entrada).seconds,
+                        quantidade=teste.quantidadeTotal,
+                    )
+
+                    teste2 = process.save(registro)
                     # Salva os dados no banco e abre a porta
                     print("Salvando os dados....")
-                    time.sleep(5)
-
                     matrizReaded = None
                     registro = None
                     entrada = None
                     saida = None
-
                     motor.open(gpio)
 
         except Exception as e:
@@ -253,19 +263,12 @@ def clean():
 
 
 def process(matrizReaded):
-    if registro is None:
-        registro = Registro(
-            matrizId=matrizReaded.id,
-            dataEntrada=datetime.now(),
-            quantidade=0
-        )
 
-    if registro.quantidade <= matrizReaded.quantidadeTotal:
-        registro.quantidade = motor.feed(GPIO)
+    return matrizReaded
 
 
 def leds():
-    # ==== So teste dos leds ======== #
+    # ==== Teste dos leds ======== #
     GPIO.output(sensors.portaoAbrindo, 1)
     time.sleep(0.3)
     GPIO.output(sensors.portaoAbrindo, 0)

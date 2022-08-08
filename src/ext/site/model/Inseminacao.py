@@ -1,6 +1,6 @@
 from sqlalchemy import Column, DateTime, Integer, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
-from ...db import db
+from ext.db import db
 
 
 class Inseminacao(db):

@@ -1,6 +1,6 @@
 from services import registros
-from ..site.model import Registro
-from werkzeug.wrappers import Response, Request
+from ext.site.model import Registro
+from werkzeug.wrappers import Response
 import json
 
 
@@ -9,8 +9,8 @@ def cadastrarRegistro(registro):  # Create
         if registro is None:
             raise BaseException("Registro não passado para o controlador")
 
-        # db.session.add(registro)
-        # db.session.commit()
+        session.add(registro)
+        session.commit()
 
         return registro
     except BaseException as e:

@@ -1,10 +1,11 @@
 # from .Aviso import Aviso
-from .Confinamento import Confinamento
-from .Dia import Dia
-from .Inseminacao import Inseminacao
-from .Matriz import Matriz
-from .Plano import Plano
-from .Registro import Registro
+from ext.site.model.Confinamento import Confinamento
+from ext.site.model.Dia import Dia
+from ext.site.model.Inseminacao import Inseminacao
+from ext.site.model.Matriz import Matriz
+from ext.site.model.Plano import Plano
+from ext.site.model.Registro import Registro
+from ext.site.model.Alimentador import Alimentador
 
 
 def init_app():
@@ -15,3 +16,4 @@ def init_app():
     Matriz()
     Plano()
     Registro()
+    Alimentador()

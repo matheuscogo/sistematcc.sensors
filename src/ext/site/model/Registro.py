@@ -1,6 +1,5 @@
-from sqlalchemy import Column, DateTime, Integer, String, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
-from ...db import db
+from sqlalchemy import Column, DateTime, Integer, ForeignKey
+from ext.db import db
 
 
 class Registro(db):
