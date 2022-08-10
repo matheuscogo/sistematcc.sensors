@@ -7,7 +7,8 @@ class Alimentador(db):
     __tablename__ = "alimentador"
     id = Column("id", Integer, primary_key=True)
     matrizId = Column("matrizId", Integer, ForeignKey("matrizes.id"))
-    confinamentoId = Column("confinamentoId", Integer, ForeignKey("confinamento.id"))
+    confinamentoId = Column("confinamentoId", Integer,
+                            ForeignKey("confinamentos.id"))
     planoId = Column("planoId", Integer, ForeignKey("planos.id"))
     dataEntrada = Column("dataEntrada", DateTime)
     quantidade = Column("quantidade", Integer)

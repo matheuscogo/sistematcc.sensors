@@ -1,10 +1,10 @@
 from sqlalchemy import Column, DateTime, Integer, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
-from ...db import db
+from ext.db import db
 
 
 class Confinamento(db):
-    __tablename__ = "confinamento"
+    __tablename__ = "confinamentos"
     id = Column("id", Integer, primary_key=True)
     planoId = Column(Integer, ForeignKey("planos.id"))
     matrizId = Column(Integer, ForeignKey("matrizes.id"))

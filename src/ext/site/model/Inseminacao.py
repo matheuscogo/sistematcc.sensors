@@ -4,11 +4,11 @@ from ext.db import db
 
 
 class Inseminacao(db):
-    __tablename__ = "inseminacao"
+    __tablename__ = "inseminacoes"
     id = Column("id", Integer, primary_key=True)
     planoId = Column(Integer, ForeignKey("planos.id"))
     matrizId = Column(Integer, ForeignKey("matrizes.id"))
-    confinamentoId = Column(Integer, ForeignKey("confinamento.id"))
+    confinamentoId = Column(Integer, ForeignKey("confinamentos.id"))
     dataInseminacao = Column("dataInseminacao", DateTime)
     active = Column("active", Boolean, default=True)
 
