@@ -1,4 +1,4 @@
-# from .Aviso import Aviso
+from ext.site.model.Aviso import Aviso
 from ext.site.model.Confinamento import Confinamento
 from ext.site.model.Dia import Dia
 from ext.site.model.Inseminacao import Inseminacao
@@ -9,7 +9,7 @@ from ext.site.model.Alimentador import Alimentador
 
 
 def init_app():
-    # Aviso()
+    Aviso()
     Confinamento()
     Dia()
     Inseminacao()
