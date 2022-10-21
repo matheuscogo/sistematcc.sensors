@@ -3,3 +3,5 @@ sqlalchemy
 RPi.GPIO
 sqlite_web
 schedule
+# serial
+pyserial
