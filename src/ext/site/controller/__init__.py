@@ -7,6 +7,10 @@ from ext.site.controller import pir
 from ext.site.controller import motor
 from datetime import datetime
 import RPi.GPIO as GPIO
+import time
+import serial
+
+ser = serial.Serial("/dev/serial0", 115200)
 
 GPIO.setmode(GPIO.BOARD)  # Définit le mode de numérotation (Board)
 GPIO.setwarnings(False)  # On désactive les messages d'alerte
@@ -24,7 +28,12 @@ def init_app():
     pir.init_app(GPIO)
     motor.init_app(GPIO)
 
-    start(GPIO)
+    rfidTest()
+    buttonTest()
+    motorTest()
+    pirTest()
+
+    # start(GPIO)
 
 
 def start(gpio):
@@ -89,3 +98,58 @@ def clean():
     registro = None
     entrada = None
     saida = None
+
+
+def buttonTest():
+    cursoSepadorFechamento = GPIO.input(31) == 1
+    cursoSepadorAbertura = GPIO.input(33) == 1
+    cursoFechamento = GPIO.input(35) == 1
+    cursoAbertura = GPIO.input(37) == 1
+
+    if cursoAbertura:
+        print("Botão curso abertura")
+
+    if cursoFechamento:
+        print("Botão curso fechamento")
+
+    if cursoSepadorAbertura:
+        print("Botão curso separador abertura")
+
+    if cursoSepadorFechamento:
+        print("Botão curso separador fechamento")
+
+
+def motorTest():
+    GPIO.output(32, 1)
+    time(0.5)
+    GPIO.output(32, 0)
+
+    GPIO.output(36, 1)
+    time(0.5)
+    GPIO.output(36, 0)
+
+    GPIO.output(40, 1)
+    time(0.5)
+    GPIO.output(40, 0)
+
+    GPIO.output(38, 1)
+    time(0.5)
+    GPIO.output(38, 0)
+
+
+def pirTest():
+    if GPIO.input(29) == 1:
+        print("Há presença na maquina")
+    else:
+        print("Não há presença na maquina")
+
+
+def rfidTest():
+    if ser.inWaiting() > 0:
+        tag = ser.readline()
+        tag = tag.decode("utf-8")  # bytes para str
+        tag = tag.rstrip()
+
+        print("Tag:" + tag)
+    else:
+        print("Tag não recebida")

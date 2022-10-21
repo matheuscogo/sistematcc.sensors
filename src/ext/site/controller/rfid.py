@@ -20,7 +20,7 @@ def read():
             print('Matriz {} identificada'.format(matriz.rfid))
             return matriz
 
-        return None
+    return None
 
 
 def readed(matriz):
