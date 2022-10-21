@@ -24,3 +24,21 @@ def closed(gpio):
         return pressed
 
     return False
+
+
+def separadorOpened(gpio):
+    pressed = gpio.input(sensors.cursoSepadorAbertura) == 1
+    if pressed:
+        print("Portão aberto.")
+        return pressed
+
+    return False
+
+
+def separadorClosed(gpio):
+    pressed = gpio.input(sensors.cursoSepadorFechamento) == 1
+    if pressed:
+        print("Portão fechado.")
+        return pressed
+
+    return False

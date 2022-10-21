@@ -1,7 +1,7 @@
 from ext.site.model import Matriz
 from ext.site.model import Dia
 from ext.site.model import Confinamento
-# from ext.site.model import Dia
+from ext.site.model import Aviso
 from ext.db import session
 from werkzeug.wrappers import Response
 import json
@@ -88,6 +88,9 @@ def consultarMatrizRFID(rfid):  # Read
 
         matriz.confinamento = session.query(Confinamento).filter_by(
             matrizId=matriz.id, active=True).first()
+
+        matriz.aviso = session.query(Aviso).filter_by(
+            confinamentoId=matriz.confinamento.id, active=True).first()
 
         if matriz.confimamento is not None:
             day = (matriz.confinamento.dataConfinamento - datetime.now()).day

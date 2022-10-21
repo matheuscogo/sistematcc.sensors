@@ -10,6 +10,11 @@ def init_app(GPIO):
     GPIO.setup(sensors.portaoSeparadorAbrindo, GPIO.OUT)
     GPIO.setup(sensors.portaoSeparadorFechando, GPIO.OUT)
 
+    GPIO.output(sensors.portaoAbrindo, 0)
+    GPIO.output(sensors.portaoFechando, 0)
+    GPIO.output(sensors.portaoSeparadorAbrindo, 0)
+    GPIO.output(sensors.portaoSeparadorFechando, 0)
+
 
 def open(gpio):
     while button.opened(gpio) is not True:
@@ -20,15 +25,27 @@ def open(gpio):
 
 
 def close(gpio):
-    start = datetime.now()
     while button.closed(gpio) is not True:
         gpio.output(sensors.portaoFechando, 1)
         print("Fechando portão....")
 
-        if (datetime.now() - start).seconds > 5:
-            open(gpio)
-
     gpio.output(sensors.portaoFechando, 0)
+
+
+def closeSeparador(gpio):
+    while button.separadorOpened(gpio) is not True:
+        gpio.output(sensors.portaoSeparadorAbrindo, 1)
+        print("Abrindo portão separador....")
+
+    gpio.output(sensors.portaoSeparadorAbrindo, 0)
+
+
+def openSeparador(gpio):
+    while button.separadorClosed(gpio) is not True:
+        gpio.output(sensors.portaoSeparadorFechando, 1)
+        print("Fechando portão sepatrador....")
+
+    gpio.output(sensors.portaoSeparadorFechando, 0)
 
 
 def feed(alimentador):

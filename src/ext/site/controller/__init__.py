@@ -10,8 +10,6 @@ import RPi.GPIO as GPIO
 import time
 import serial
 
-ser = serial.Serial("/dev/serial0", 115200)
-
 GPIO.setmode(GPIO.BOARD)  # Définit le mode de numérotation (Board)
 GPIO.setwarnings(False)  # On désactive les messages d'alerte
 
@@ -28,12 +26,9 @@ def init_app():
     pir.init_app(GPIO)
     motor.init_app(GPIO)
 
-    rfidTest()
-    buttonTest()
-    motorTest()
-    pirTest()
+    motor.open(GPIO)
 
-    # start(GPIO)
+    start(GPIO)
 
 
 def start(gpio):
@@ -47,8 +42,9 @@ def start(gpio):
     while True:
         try:
             if pir.read(gpio):
+                saida = None
                 if matrizReaded is None:
-                    matrizReaded = rfid.read()
+                    matrizReaded = rfid.read(gpio)
 
                 if entrada is None and matrizReaded is None:
                     entrada = datetime.now()
@@ -70,24 +66,29 @@ def start(gpio):
 
                         matrizReaded.quantidade = motor.feed(alimentador)
 
-            elif not pir.read(gpio) and matrizReaded is not None:
-                saida = datetime.now()
+            elif not pir.read(gpio):
+                if saida is None:
+                    saida = datetime.now()
 
-                if (datetime.now() - saida).seconds > 30 and button.closed(gpio):
-                    register = process.query(matrizReaded.hash)
-                    registro = Registro(
-                        matrizId=register.matrizId,
-                        dataEntrada=matrizReaded.entrada,
-                        dataSaida=datetime.now(),
-                        tempo=(datetime.now() - matrizReaded.entrada).seconds,
-                        quantidade=register.quantidadeTotal,
-                    )
+                if (datetime.now() - saida).seconds > 10 and button.closed(gpio):
+                    if matrizReaded is not None:
+                        register = process.query(matrizReaded.hash)
+                        registro = Registro(
+                            matrizId=register.matrizId,
+                            dataEntrada=matrizReaded.entrada,
+                            dataSaida=datetime.now(),
+                            tempo=(datetime.now() -
+                                   matrizReaded.entrada).seconds,
+                            quantidade=register.quantidadeTotal,
+                        )
 
-                    # Salva os dados no banco e abre a porta
-                    print("Salvando os dados....")
-                    process.save(registro)
-                    clean()
+                        # Salva os dados no banco e abre a porta
+                        print("Salvando os dados....")
+                        process.save(registro)
+                        clean()
+
                     motor.open(gpio)
+                    motor.closeSeparador(gpio)
 
         except Exception as e:
             print(e.args[0])
@@ -98,58 +99,3 @@ def clean():
     registro = None
     entrada = None
     saida = None
-
-
-def buttonTest():
-    cursoSepadorFechamento = GPIO.input(31) == 1
-    cursoSepadorAbertura = GPIO.input(33) == 1
-    cursoFechamento = GPIO.input(35) == 1
-    cursoAbertura = GPIO.input(37) == 1
-
-    if cursoAbertura:
-        print("Botão curso abertura")
-
-    if cursoFechamento:
-        print("Botão curso fechamento")
-
-    if cursoSepadorAbertura:
-        print("Botão curso separador abertura")
-
-    if cursoSepadorFechamento:
-        print("Botão curso separador fechamento")
-
-
-def motorTest():
-    GPIO.output(32, 1)
-    time(0.5)
-    GPIO.output(32, 0)
-
-    GPIO.output(36, 1)
-    time(0.5)
-    GPIO.output(36, 0)
-
-    GPIO.output(40, 1)
-    time(0.5)
-    GPIO.output(40, 0)
-
-    GPIO.output(38, 1)
-    time(0.5)
-    GPIO.output(38, 0)
-
-
-def pirTest():
-    if GPIO.input(29) == 1:
-        print("Há presença na maquina")
-    else:
-        print("Não há presença na maquina")
-
-
-def rfidTest():
-    if ser.inWaiting() > 0:
-        tag = ser.readline()
-        tag = tag.decode("utf-8")  # bytes para str
-        tag = tag.rstrip()
-
-        print("Tag:" + tag)
-    else:
-        print("Tag não recebida")
