@@ -1,8 +1,8 @@
 from ...db import matrizCRUD
 from ..controller import motor
-import serial
+# import serial
 
-ser = serial.Serial("/dev/serial0", 115200)
+# ser = serial.Serial("/dev/serial0", 115200)
 readDate = None
 
 
@@ -11,20 +11,21 @@ def init_app(GPIO):
 
 
 def read(gpio):
-    if ser.inWaiting() > 0:
-        tag = ser.readline()
-        tag = tag.decode("utf-8")  # bytes para str
-        tag = tag.rstrip()
+    # if ser.inWaiting() > 0:
+    #     tag = ser.readline()
+    #     tag = tag.decode("utf-8")  # bytes para str
+    #     tag = tag.rstrip()
 
-        matriz = matrizCRUD.consultarMatrizRFID(tag)
-        if matriz is not None:
-            if matriz.aviso.separar:
-                motor.openSeparador(gpio)
+    matriz = matrizCRUD.consultarMatrizRFID("[248, 682, 64, 23, 55]")
+        
+    if matriz is not None:
+        if matriz.separate:
+            motor.openSeparador(gpio)
 
-            print('Matriz {} identificada'.format(matriz.rfid))
-            return matriz
+        print('Matriz {} identificada'.format(matriz.rfid))
+        return matriz
 
-    return None
+    # return None
 
 
 def readed(matriz):

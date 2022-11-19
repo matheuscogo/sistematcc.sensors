@@ -2,7 +2,7 @@ from datetime import datetime
 from ext.config import sensors
 from ext.site.controller import button
 from ext.db import alimentadorCRUD
-
+import time
 
 def init_app(GPIO):
     GPIO.setup(sensors.portaoAbrindo, GPIO.OUT)
@@ -48,9 +48,15 @@ def openSeparador(gpio):
     gpio.output(sensors.portaoSeparadorFechando, 0)
 
 
-def feed(alimentador):
-    alimentadorCRUD.cadastrarAlimentador(alimentador)
+def feed(alimentador, gpio):
     print("Alimentando...")
+    gpio.output(sensors.alimentador, 1)
+    time.sleep(10)
+    gpio.output(sensors.alimentador, 0)
+    
+    alimentador.quantidade = 300
+
+    alimentadorCRUD.cadastrarAlimentador(alimentador)
     return alimentador.quantidade
 
 

@@ -1,16 +1,13 @@
-from sqlalchemy import Column, DateTime, Integer, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, Boolean, ForeignKey, DateTime
 from ext.db import db
-
 
 class Inseminacao(db):
     __tablename__ = "inseminacoes"
-    id = Column("id", Integer, primary_key=True)
-    planoId = Column(Integer, ForeignKey("planos.id"))
-    matrizId = Column(Integer, ForeignKey("matrizes.id"))
-    confinamentoId = Column(Integer, ForeignKey("confinamentos.id"))
-    dataInseminacao = Column("dataInseminacao", DateTime)
+    # __table_args__ = {"schema":"public"}
+    id = Column("id", Integer, primary_key=True, autoincrement=True)
+    planoId = Column("plano_id", Integer, ForeignKey("planos.id"))
+    matrizId = Column("matriz_id", Integer, ForeignKey("matrizes.id"))
+    confinamentoId = Column("confinamento_id", Integer, ForeignKey("confinamentos.id"))
+    dataInseminacao = Column("data_inseminacao", DateTime)
     active = Column("active", Boolean, default=True)
-
-    matrizes = relationship("Matriz", foreign_keys=[matrizId])
-    planos = relationship("Plano", foreign_keys=[planoId])
+    deleted = Column("deleted", Boolean, default=False)

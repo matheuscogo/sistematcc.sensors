@@ -1,15 +1,13 @@
-from sqlalchemy import Column, DateTime, Integer, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, Boolean, ForeignKey, DateTime
 from ext.db import db
-
 
 class Confinamento(db):
     __tablename__ = "confinamentos"
-    id = Column("id", Integer, primary_key=True)
-    planoId = Column(Integer, ForeignKey("planos.id"))
-    matrizId = Column(Integer, ForeignKey("matrizes.id"))
-    dataConfinamento = Column("dataConfinamento", DateTime)
+    # __table_args__ = {"schema":"public"}
+    id = Column("id", Integer, primary_key=True, autoincrement=True)
+    planoId = Column("plano_id", Integer, ForeignKey('planos.id'))
+    matrizId = Column("matriz_id", Integer, ForeignKey('matrizes.id'))
+    dataConfinamento = Column("data_confinamento", DateTime)
     active = Column("active", Boolean, default=True)
-
-    matrizes = relationship("Matriz", foreign_keys=matrizId)
-    planos = relationship("Plano", foreign_keys=planoId)
+    deleted = Column("deleted", Boolean, default=True)
+    

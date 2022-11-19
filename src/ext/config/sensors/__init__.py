@@ -24,3 +24,6 @@ portaoSeparadorAbrindo = 40
 
 # Portão do separador fechando(led vermelho)
 portaoSeparadorFechando = 38
+
+# Ligar motor do alimentador
+portaoSeparadorFechando = 22

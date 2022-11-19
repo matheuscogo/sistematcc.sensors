@@ -1,12 +1,11 @@
-from sqlalchemy import Column, DateTime, Integer, ForeignKey
+from sqlalchemy import Column, Integer, DateTime, ForeignKey
 from ext.db import db
-
 
 class Registro(db):
     __tablename__ = "registros"
-    id = Column("id", Integer, primary_key=True)
-    matrizId = Column(Integer, ForeignKey("confinamentos.matrizId"))
-    dataEntrada = Column("dataEntrada", DateTime)
-    dataSaida = Column("dataSaida", DateTime)
-    tempo = Column("tempo", DateTime)
+    # __table_args__ = {"schema":"public"}
+    id = Column("id", Integer, primary_key=True, autoincrement=True)
+    matrizId = Column("matriz_id", Integer, ForeignKey("matrizes.id"))
+    dataEntrada = Column("data_entrada", DateTime)
+    dataSaida = Column("data_saida", DateTime)
     quantidade = Column("quantidade", Integer)
