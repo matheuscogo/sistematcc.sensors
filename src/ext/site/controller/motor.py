@@ -2,13 +2,18 @@ from datetime import datetime
 from ext.config import sensors
 from ext.site.controller import button
 from ext.db import alimentadorCRUD
-
+import time
 
 def init_app(GPIO):
     GPIO.setup(sensors.portaoAbrindo, GPIO.OUT)
     GPIO.setup(sensors.portaoFechando, GPIO.OUT)
     GPIO.setup(sensors.portaoSeparadorAbrindo, GPIO.OUT)
     GPIO.setup(sensors.portaoSeparadorFechando, GPIO.OUT)
+
+    GPIO.output(sensors.portaoAbrindo, 0)
+    GPIO.output(sensors.portaoFechando, 0)
+    GPIO.output(sensors.portaoSeparadorAbrindo, 0)
+    GPIO.output(sensors.portaoSeparadorFechando, 0)
 
 
 def open(gpio):
@@ -20,20 +25,38 @@ def open(gpio):
 
 
 def close(gpio):
-    start = datetime.now()
     while button.closed(gpio) is not True:
         gpio.output(sensors.portaoFechando, 1)
         print("Fechando portão....")
 
-        if (datetime.now() - start).seconds > 5:
-            open(gpio)
-
     gpio.output(sensors.portaoFechando, 0)
 
 
-def feed(alimentador):
-    alimentadorCRUD.cadastrarAlimentador(alimentador)
+def closeSeparador(gpio):
+    while button.separadorOpened(gpio) is not True:
+        gpio.output(sensors.portaoSeparadorAbrindo, 1)
+        print("Abrindo portão separador....")
+
+    gpio.output(sensors.portaoSeparadorAbrindo, 0)
+
+
+def openSeparador(gpio):
+    while button.separadorClosed(gpio) is not True:
+        gpio.output(sensors.portaoSeparadorFechando, 1)
+        print("Fechando portão sepatrador....")
+
+    gpio.output(sensors.portaoSeparadorFechando, 0)
+
+
+def feed(alimentador, gpio):
     print("Alimentando...")
+    gpio.output(sensors.alimentador, 1)
+    time.sleep(10)
+    gpio.output(sensors.alimentador, 0)
+    
+    alimentador.quantidade = 300
+
+    alimentadorCRUD.cadastrarAlimentador(alimentador)
     return alimentador.quantidade
 
 
