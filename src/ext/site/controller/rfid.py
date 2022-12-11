@@ -1,9 +1,7 @@
 from ...db import matrizCRUD
 from ..controller import motor
 # import serial
-
 # ser = serial.Serial("/dev/serial0", 115200)
-readDate = None
 
 
 def init_app(GPIO):
