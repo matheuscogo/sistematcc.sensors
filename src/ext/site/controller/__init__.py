@@ -1,18 +1,18 @@
 from ext.site.model import Alimentador
 from ext.site.model import Registro
-from ext.db import avisoCRUD, alimentadorCRUD
+from ext.db import avisoCRUD, alimentadorCRUD, parametroCRUD
 from ext.site.controller import rfid
 from ext.site.controller import button
 from ext.site.controller import process
 from ext.site.controller import pir
 from ext.site.controller import motor
 from datetime import datetime
+from ...config import parametros
 import RPi.GPIO as GPIO
 import time
-import serial
 
-GPIO.setmode(GPIO.BOARD)  # Définit le mode de numérotation (Board)
-GPIO.setwarnings(False)  # On désactive les messages d'alerte
+GPIO.setmode(GPIO.BOARD)
+GPIO.setwarnings(False)
 
 
 cursoAberturaControl = False
@@ -39,6 +39,8 @@ def start(gpio):
     registro = None
     entrada = None
     saida = None
+    
+    parametroCRUD.consultarParametros()
 
     while True:
         try:
@@ -67,14 +69,12 @@ def start(gpio):
                             hash=matrizReaded.hash,
                         )
 
-                        motor.feed(alimentador)
-
-                        matrizReaded.quantidade = alimentadorCRUD.consultarAlimentadores(hash=matrizReaded.hash)
+                        matrizReaded.quantidade = motor.feed(alimentador)
             elif not pir.read(gpio):
                 if saida is None:
                     saida = datetime.now()
 
-                if (datetime.now() - saida).seconds > 10 and button.closed(gpio):
+                if (datetime.now() - saida).seconds > parametros.tempoProximaMatriz and button.closed(gpio):
                     if matrizReaded is not None:
                         register = process.query(matrizReaded.hash)
                         registro = Registro(

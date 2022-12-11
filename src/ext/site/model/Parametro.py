@@ -1,16 +1,12 @@
-# from sqlalchemy import Column, Integer, Boolean, VARCHAR
-# from ext.db import db
+from sqlalchemy import Column, Integer, Boolean, ForeignKey, DateTime
+from ext.db import db
 
-# class Parametro(db):
-#     __tablename__ = 'parameters'
-#     # __table_args__ = {"schema":"public"}
-#     id = Column("id", Integer, primary_key=True, autoincrement=True)
-#     motorOpen = Column("rfid", Boolean)
-#     motorClose = Column("rfid", Boolean)
-#     motorFeed = Column("rfid", Boolean)
-#     quantity = Column("rfid", Boolean)
-#     time = Column("rfid", Boolean)
-#     rfid = Column("rfid", Boolean)
-#     rfid = Column("rfid", Boolean)
-#     rfid = Column("rfid", Boolean)
-    
+class Parametro(db):
+    __tablename__ = "parametros"
+    # __table_args__ = {"schema":"public"}
+    id = Column("id", Integer, primary_key=True, autoincrement=True)
+    tempoPorção = Column("tempoPorção",Integer)
+    quantidadePorção = Column("quantidadePorção", Integer)
+    intervaloPorções = Column("intervaloPorções", Integer)
+    tempoProximaMatriz = Column("tempoProximaMatriz", Integer)
+
