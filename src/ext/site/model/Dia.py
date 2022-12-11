@@ -6,6 +6,6 @@ class Dia(db):
     __tablename__ = "dias"
     # __table_args__ = {"schema":"public"}
     id = Column("id", Integer, primary_key=True, autoincrement=True)
-    planoId = Column("plano_id", Integer,  ForeignKey("planos.id"))
+    planoId = Column("planos_id", Integer,  ForeignKey("planos.id"))
     dia = Column("dia", Integer)
     quantidade = Column("quantidade", Integer)

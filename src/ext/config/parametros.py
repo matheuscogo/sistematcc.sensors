@@ -2,10 +2,13 @@
 tempoPorção = 30
 
 # Quantidade da porção
-quantidadePorção = 500  # porta1Aberta
+quantidadePorção = 500
 
 # Intervalo entre porções
-intervaloPorções = 60  # porta1Fechada
+intervaloPorções = 60
 
 # Tempo para abrir o alimentador para próxima matriz
-tempoProximaMatriz = 30  # porta2Aberta
+tempoProximaMatriz = 30
+
+# Tempo para abrir o alimentador para próxima matriz
+tempoSemBrinco = 60

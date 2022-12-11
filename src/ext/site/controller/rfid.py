@@ -11,22 +11,17 @@ def init_app(GPIO):
 
 
 def read(gpio):
+    print("Aguardando identificação")
     # if ser.inWaiting() > 0:
     #     tag = ser.readline()
     #     tag = tag.decode("utf-8")  # bytes para str
     #     tag = tag.rstrip()
 
     matriz = matrizCRUD.consultarMatrizRFID("[248, 682, 64, 23, 55]")
-        
+
     if matriz is not None:
         if matriz.separate:
             motor.openSeparador(gpio)
 
         print('Matriz {} identificada'.format(matriz.rfid))
         return matriz
-
-    # return None
-
-
-def readed(matriz):
-    return matriz is not None
