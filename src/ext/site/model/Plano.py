@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, Boolean, VARCHAR
 from ext.db import db
 
+
 class Plano(db):
     __tablename__ = 'planos'
     # __table_args__ = {"schema":"public"}

@@ -1,18 +1,16 @@
-from ext.site.model import Alimentador
 from ext.site.model import Registro
-from ext.db import avisoCRUD, alimentadorCRUD
+from ext.db import avisoCRUD, parametroCRUD
 from ext.site.controller import rfid
 from ext.site.controller import button
 from ext.site.controller import process
 from ext.site.controller import pir
 from ext.site.controller import motor
 from datetime import datetime
+from ...config import parametros
 import RPi.GPIO as GPIO
-import time
-import serial
 
-GPIO.setmode(GPIO.BOARD)  # Définit le mode de numérotation (Board)
-GPIO.setwarnings(False)  # On désactive les messages d'alerte
+GPIO.setmode(GPIO.BOARD)
+GPIO.setwarnings(False)
 
 
 cursoAberturaControl = False
@@ -40,6 +38,8 @@ def start(gpio):
     entrada = None
     saida = None
 
+    parametroCRUD.consultarParametros()
+
     while True:
         try:
             if pir.read(gpio):
@@ -51,7 +51,8 @@ def start(gpio):
                     entrada = datetime.now()
 
                 if entrada is not None:
-                    if (datetime.now() - entrada).seconds > 30:
+                    if (datetime.now() - entrada).seconds > parametros.tempoSemBrinco:
+                        print("Matriz sem brinco")
                         avisoCRUD.cadastrarAviso(
                             confinamentoId=matrizReaded.confinamento.id,
                             type=1
@@ -59,29 +60,19 @@ def start(gpio):
 
                 if matrizReaded is not None:
                     if matrizReaded.quantidade <= matrizReaded.quantidadeTotal:
-                        alimentador = Alimentador(
-                            matrizId=matrizReaded.id,
-                            dataEntrada=matrizReaded.entrada,
-                            confinamentoId=matrizReaded.confinamento.id,
-                            planoId=matrizReaded.confinamento.planoId,
-                            hash=matrizReaded.hash,
-                        )
+                        matrizReaded.quantidade += motor.feed(matrizReaded)
 
-                        motor.feed(alimentador)
-
-                        matrizReaded.quantidade = alimentadorCRUD.consultarAlimentadores(hash=matrizReaded.hash)
             elif not pir.read(gpio):
                 if saida is None:
                     saida = datetime.now()
 
-                if (datetime.now() - saida).seconds > 10 and button.closed(gpio):
+                if (datetime.now() - saida).seconds > parametros.tempoProximaMatriz and button.closed(gpio):
                     if matrizReaded is not None:
-                        register = process.query(matrizReaded.hash)
                         registro = Registro(
-                            matrizId=register.matrizId,
+                            confinamentoId=matrizReaded.confinamentoId,
                             dataEntrada=matrizReaded.entrada,
                             dataSaida=datetime.now(),
-                            quantidade=register.quantidadeTotal,
+                            quantidade=matrizReaded.quantidade,
                         )
 
                         # Salva os dados no banco e abre a porta

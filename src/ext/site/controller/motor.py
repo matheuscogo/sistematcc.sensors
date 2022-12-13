@@ -1,8 +1,8 @@
-from datetime import datetime
 from ext.config import sensors
 from ext.site.controller import button
-from ext.db import alimentadorCRUD
 import time
+from ...config import parametros
+
 
 def init_app(GPIO):
     GPIO.setup(sensors.portaoAbrindo, GPIO.OUT)
@@ -17,7 +17,8 @@ def init_app(GPIO):
 
 
 def open(gpio):
-    while button.opened(gpio) is not True:
+    open = button.opened(gpio)
+    while open is not True:
         gpio.output(sensors.portaoAbrindo, 1)
         print("Abrindo portão....")
 
@@ -25,90 +26,38 @@ def open(gpio):
 
 
 def close(gpio):
-    while button.closed(gpio) is not True:
+    close = button.closed(gpio)
+    while close is not True:
         gpio.output(sensors.portaoFechando, 1)
         print("Fechando portão....")
 
     gpio.output(sensors.portaoFechando, 0)
 
 
-def closeSeparador(gpio):
-    while button.separadorOpened(gpio) is not True:
-        gpio.output(sensors.portaoSeparadorAbrindo, 1)
-        print("Abrindo portão separador....")
-
-    gpio.output(sensors.portaoSeparadorAbrindo, 0)
-
-
 def openSeparador(gpio):
-    while button.separadorClosed(gpio) is not True:
+    openSeparador = button.separadorClosed(gpio)
+    while openSeparador is not True:
         gpio.output(sensors.portaoSeparadorFechando, 1)
         print("Fechando portão sepatrador....")
 
     gpio.output(sensors.portaoSeparadorFechando, 0)
 
 
-def feed(alimentador, gpio):
+def closeSeparador(gpio):
+    closeSeparador = button.separadorOpened(gpio)
+    while closeSeparador is not True:
+        gpio.output(sensors.portaoSeparadorAbrindo, 1)
+        print("Abrindo portão separador....")
+
+    gpio.output(sensors.portaoSeparadorAbrindo, 0)
+
+
+def feed(matriz, gpio):
     print("Alimentando...")
     gpio.output(sensors.alimentador, 1)
-    time.sleep(10)
+    time.sleep(parametros.intervaloPorções)
     gpio.output(sensors.alimentador, 0)
-    
-    alimentador.quantidade = 300
 
-    alimentadorCRUD.cadastrarAlimentador(alimentador)
-    return alimentador.quantidade
+    matriz.quantidade = parametros.quantidadePorção
 
-
-def porta(acao):
-    # TODO -> Abrir ou fechar motor
-
-    # TODO -> ABRIR
-    # Se ação for abrir e o botão aberto não foi precionado
-    # Mandar abrir
-    # Se o botão aberto for precionado
-    # Para de abrir
-
-    # TODO -> FECHAR
-    # Se ação for fechar e o botão fechar não foi precionado
-    # Mandar fechar
-    # Se o botão fechado for precionado
-    # Para de fechar
-    ...
-
-
-def separador(acao):
-    # TODO -> Abrir ou fechar motor
-
-    # TODO -> ABRIR
-    # Se ação for abrir
-    # Mandar abrir
-    # Se o botão aberto for precionado
-    # Para de abrir
-
-    # TODO -> FECHAR
-    # Se ação for fechar
-    # Mandar fechar
-    # Se o botão fechado for precionado
-    # Para de fechar
-    ...
-
-
-def alimentador(matriz):
-    # TODO -> Função ligar ou desligar motor do alimentador
-
-    # Variavel porçãoDia
-
-    # Se matriz não foi identificada, chamar quantidade de ração definida nos parametros
-    # Define porçãoDia
-
-    # Consulta a porãoDia menos a quantidade registrada naquele dia(tabela registros)
-    # Enquanto matriz está dentro do alimentador
-    # Equanto porçãoDia for maior que a porçãoAtual -> alimentar a matriz
-    # Ligar motor
-    # time.sleep(consultar tempo do motor dos parametros)
-    # Desligar motor
-    # Somar a porçãoAtual de ração que ainda resta com base na quantidade por tempo definada pela tabela de parametros
-
-    # Na saida do looping -> salvar dados na tabela registros
-    ...
+    return matriz.quantidade
