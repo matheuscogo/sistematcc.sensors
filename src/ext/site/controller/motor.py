@@ -11,19 +11,10 @@ def init_app(GPIO):
     GPIO.setup(sensors.portaoSeparadorFechando, GPIO.OUT)
     GPIO.setup(sensors.alimentador, GPIO.OUT)
 
-    GPIO.output(sensors.portaoAbrindo, 0)
-    GPIO.output(sensors.portaoFechando, 0)
-    GPIO.output(sensors.portaoSeparadorAbrindo, 0)
-    GPIO.output(sensors.portaoSeparadorFechando, 0)
-    GPIO.output(sensors.alimentador, 0)
-
-
-
 
 
 def open(gpio):
-    open = button.opened(gpio)
-    while open is not True:
+    while button.opened(gpio) is not True:
         gpio.output(sensors.portaoAbrindo, 1)
         print("Abrindo portão....")
 
@@ -31,8 +22,7 @@ def open(gpio):
 
 
 def close(gpio):
-    close = button.closed(gpio)
-    while close is not True:
+    while button.closed(gpio) is not True:
         gpio.output(sensors.portaoFechando, 1)
         print("Fechando portão....")
 
@@ -40,8 +30,7 @@ def close(gpio):
 
 
 def openSeparador(gpio):
-    openSeparador = button.separadorClosed(gpio)
-    while openSeparador is not True:
+    while button.separadorClosed(gpio) is not True:
         gpio.output(sensors.portaoSeparadorFechando, 1)
         print("Fechando portão sepatrador....")
 
@@ -49,8 +38,7 @@ def openSeparador(gpio):
 
 
 def closeSeparador(gpio):
-    closeSeparador = button.separadorOpened(gpio)
-    while closeSeparador is not True:
+    while button.separadorOpened(gpio) is not True:
         gpio.output(sensors.portaoSeparadorAbrindo, 1)
         print("Abrindo portão separador....")
 
@@ -60,9 +48,11 @@ def closeSeparador(gpio):
 def feed(matriz, gpio):
     print("Alimentando...")
     gpio.output(sensors.alimentador, 1)
-    time.sleep(parametros.intervaloPorções)
+    time.sleep(parametros.tempoPorcao)
     gpio.output(sensors.alimentador, 0)
 
-    matriz.quantidade = parametros.quantidadePorção
+    time.sleep(parametros.intervaloPorcoes)
+
+    matriz.quantidade = parametros.quantidadePorcao
 
     return matriz.quantidade

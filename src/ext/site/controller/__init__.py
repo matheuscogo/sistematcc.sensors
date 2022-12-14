@@ -8,6 +8,7 @@ from ext.site.controller import motor
 from datetime import datetime
 from ...config import parametros
 import RPi.GPIO as GPIO
+from ...config import sensors
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
@@ -25,7 +26,14 @@ def init_app():
     pir.init_app(GPIO)
     motor.init_app(GPIO)
 
+    GPIO.output(sensors.portaoAbrindo, 0)
+    GPIO.output(sensors.portaoFechando, 0)
+    GPIO.output(sensors.portaoSeparadorAbrindo, 0)
+    GPIO.output(sensors.portaoSeparadorFechando, 0)
+    GPIO.output(sensors.alimentador, 0)
+
     motor.open(GPIO)
+    motor.closeSeparador(GPIO)
 
     start(GPIO)
 
@@ -60,7 +68,7 @@ def start(gpio):
 
                 if matrizReaded is not None:
                     if matrizReaded.quantidade <= matrizReaded.quantidadeTotal:
-                        matrizReaded.quantidade += motor.feed(matrizReaded)
+                        matrizReaded.quantidade += motor.feed(matrizReaded, gpio)
 
             elif not pir.read(gpio):
                 if saida is None:
@@ -69,7 +77,7 @@ def start(gpio):
                 if (datetime.now() - saida).seconds > parametros.tempoProximaMatriz and button.closed(gpio):
                     if matrizReaded is not None:
                         registro = Registro(
-                            confinamentoId=matrizReaded.confinamentoId,
+                            confinamentoId=matrizReaded.confinamentoId[0],
                             dataEntrada=matrizReaded.entrada,
                             dataSaida=datetime.now(),
                             quantidade=matrizReaded.quantidade,

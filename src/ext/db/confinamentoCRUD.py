@@ -41,12 +41,12 @@ def consultarQuantidadeAlimento(matrizId):
         ).first()
         
         totalQuantity = session.query(func.sum(Registro.quantidade)).filter_by(
-            matrizId=matrizId, dataEntrada=confinamento.dataConfinamento).first()[0]
+            confinamentoId=confinamento.id, dataEntrada=confinamento.dataConfinamento).first()[0]
 
         if totalQuantity is None:
             totalQuantity = 0
 
-        total = dayQuantity - totalQuantity
+        total = dayQuantity[0] - totalQuantity
 
         if total <= 0:
             total = 0
@@ -58,17 +58,17 @@ def consultarQuantidadeAlimento(matrizId):
 
 def canOpenDoor(matrizId):
     try:
-        hasConfinamento = session.query(Confinamento.query.filter_by(matrizId=matrizId, active=True, deleted=False).exists()).scalar()
+        hasConfinamento = session.query(session.query(Confinamento).filter_by(matrizId=matrizId, active=True, deleted=False).exists()).scalar()
         if not hasConfinamento:
             return "Matriz não possui confinameto"
         
-        hasInseminacao = session.query(Inseminacao.query.filter_by(matrizId=matrizId, active=True, deleted=False).exists()).scalar()
+        hasInseminacao = session.query(session.query(Inseminacao).filter_by(matrizId=matrizId, active=True, deleted=False).exists()).scalar()
         if not hasInseminacao:
             return "Matriz não possui inseminação"
 
         confinamento = session.query(Confinamento).filter_by(matrizId=matrizId, active=True, deleted=False).first()
         
-        hasWarning = session.query(Aviso.query.filter_by(confinamentoId=confinamento.id, active=True, deleted=False, type=2).exists()).scalar()
+        hasWarning = session.query(session.query(Aviso).filter_by(confinamentoId=confinamento.id, active=True, deleted=False, tipo=2).exists()).scalar()
         if not hasWarning:
             return "Matriz não possui aviso de separação"
         
@@ -86,4 +86,9 @@ def consultarQuantidadeDiasConfinamento(matrizId):
         deleted=False
     ).first()
 
-    return (datetime.today() - confinamento.dataConfinamento).days
+    day = (datetime.today() - confinamento.dataConfinamento).days
+
+    if day == 0:
+        day = 1
+        
+    return day

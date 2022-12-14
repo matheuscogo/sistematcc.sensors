@@ -6,7 +6,7 @@ class Registro(db):
     __tablename__ = "registros"
     # __table_args__ = {"schema":"public"}
     id = Column("id", Integer, primary_key=True, autoincrement=True)
-    confinamentoId = Column("confinamentos_id", Integer,
+    confinamentoId = Column("confinamento_id", Integer,
                             ForeignKey("confinamentos.id"))
     dataEntrada = Column("data_entrada", DateTime)
     dataSaida = Column("data_saida", DateTime)

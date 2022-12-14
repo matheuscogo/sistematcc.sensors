@@ -21,8 +21,10 @@ def consultarMatrizRFID(rfid):  # Read
         matriz.quantidadeTotal = confinamentoCRUD.consultarQuantidadeAlimento(
             matriz.id)
         matriz.separate = confinamentoCRUD.canOpenDoor(matriz.id)
-        matriz.confinamentoId = session.query(Confinamento).filter_by(
+        matriz.confinamentoId = session.query(Confinamento.id).filter_by(
             matrizId=matriz.id, active=True).first()
+
+        matriz.quantidade = 0
 
         return matriz
     except Exception as e:
