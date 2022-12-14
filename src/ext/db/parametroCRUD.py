@@ -8,9 +8,9 @@ def consultarParametros():  # Read
         param = session.query(Parametro).first()
 
         if param != None:
-            parametros.tempoPorção = param.tempoPorção
-            parametros.quantidadePorção = param.quantidadePorção
-            parametros.intervaloPorções = param.intervaloPorções
+            parametros.tempoPorcao = param.tempoPorcao
+            parametros.quantidadePorcao = param.quantidadePorcao
+            parametros.intervaloPorcoes = param.intervaloPorcoes
             parametros.tempoProximaMatriz = param.tempoProximaMatriz
 
         response = {

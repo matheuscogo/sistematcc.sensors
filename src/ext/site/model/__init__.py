@@ -5,7 +5,6 @@ from ext.site.model.Inseminacao import Inseminacao
 from ext.site.model.Matriz import Matriz
 from ext.site.model.Plano import Plano
 from ext.site.model.Registro import Registro
-from ext.site.model.Alimentador import Alimentador
 
 
 def init_app():
@@ -16,4 +15,3 @@ def init_app():
     Matriz()
     Plano()
     Registro()
-    Alimentador()

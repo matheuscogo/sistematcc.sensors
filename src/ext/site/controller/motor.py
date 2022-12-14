@@ -9,11 +9,16 @@ def init_app(GPIO):
     GPIO.setup(sensors.portaoFechando, GPIO.OUT)
     GPIO.setup(sensors.portaoSeparadorAbrindo, GPIO.OUT)
     GPIO.setup(sensors.portaoSeparadorFechando, GPIO.OUT)
+    GPIO.setup(sensors.alimentador, GPIO.OUT)
 
     GPIO.output(sensors.portaoAbrindo, 0)
     GPIO.output(sensors.portaoFechando, 0)
     GPIO.output(sensors.portaoSeparadorAbrindo, 0)
     GPIO.output(sensors.portaoSeparadorFechando, 0)
+    GPIO.output(sensors.alimentador, 0)
+
+
+
 
 
 def open(gpio):

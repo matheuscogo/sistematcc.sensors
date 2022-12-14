@@ -1,11 +1,11 @@
 # Tempo da porção
-tempoPorção = 30
+tempoPorcao = 30
 
 # Quantidade da porção
-quantidadePorção = 500
+quantidadePorcao = 500
 
 # Intervalo entre porções
-intervaloPorções = 60
+intervaloPorcoes = 60
 
 # Tempo para abrir o alimentador para próxima matriz
 tempoProximaMatriz = 30
