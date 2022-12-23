@@ -5,7 +5,7 @@ from ext.site.controller import button
 from ext.site.controller import process
 from ext.site.controller import pir
 from ext.site.controller import motor
-from datetime import datetime
+from datetime import datetime, timedelta
 from ...config import parametros
 import RPi.GPIO as GPIO
 from ...config import sensors
@@ -79,7 +79,7 @@ def start(gpio):
                     if tempoAlimentadorLigado is None:
                         if matrizReaded.quantidade < matrizReaded.quantidadeTotal:
                             if ultimaPorcao is None:
-                                ultimaPorcao = datetime.now()
+                                ultimaPorcao = datetime.now() - timedelta(days=1)
                                 
                             if (datetime.now() - ultimaPorcao).seconds > parametros.intervaloPorcoes:
                                 ultimaPorcao = datetime.now()
