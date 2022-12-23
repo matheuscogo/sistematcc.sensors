@@ -10,6 +10,7 @@ def init_app(GPIO):
 
 def read(gpio):
     print("Aguardando identificação")
+    tag = ''
     if ser.inWaiting() > 0:
         tag = ser.readline()
         tag = tag.decode("utf-8")

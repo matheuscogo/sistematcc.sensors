@@ -14,19 +14,22 @@ def init_app(GPIO):
 
 
 def open(gpio):
-    while button.opened(gpio) is not True:
+    if button.closed(gpio):
         gpio.output(sensors.portaoAbrindo, 1)
         print("Abrindo portão....")
-
-    gpio.output(sensors.portaoAbrindo, 0)
+        while button.opened(gpio) is False:
+            ...
+        gpio.output(sensors.portaoAbrindo, 0)
+        
 
 
 def close(gpio):
-    while button.closed(gpio) is not True:
+    if button.opened(gpio):
         gpio.output(sensors.portaoFechando, 1)
         print("Fechando portão....")
-
-    gpio.output(sensors.portaoFechando, 0)
+        while button.closed(gpio) is False:
+            ...
+        gpio.output(sensors.portaoFechando, 0)
 
 
 def openSeparador(gpio):

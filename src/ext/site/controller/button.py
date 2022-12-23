@@ -9,21 +9,11 @@ def init_app(GPIO):
 
 
 def opened(gpio):
-    pressed = gpio.input(sensors.cursoAbertura) == 1
-    if pressed:
-        print("Portão aberto.")
-        return pressed
-
-    return False
+    return gpio.input(sensors.cursoAbertura) == 1
 
 
 def closed(gpio):
-    pressed = gpio.input(sensors.cursoFechamento) == 1
-    if pressed:
-        print("Portão fechado.")
-        return pressed
-
-    return False
+    return gpio.input(sensors.cursoFechamento) == 1
 
 
 def separadorOpened(gpio):

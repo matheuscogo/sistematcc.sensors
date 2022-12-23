@@ -76,8 +76,11 @@ def start(gpio):
                 # verifica se a matriz pode comer ainda, se pode liga o motor do alimentador e zera
                 # a contagem do intervalo
                 if matrizReaded is not None:
-                    if tempoAlimentadorLigado is not None:
+                    if tempoAlimentadorLigado is None:
                         if matrizReaded.quantidade <= matrizReaded.quantidadeTotal:
+                            if ultimaPorcao is None:
+                                ultimaPorcao = datetime.now()
+                                
                             if (datetime.now() - ultimaPorcao).seconds > parametros.intervaloPorcoes:
                                 ultimaPorcao = None
                                 tempoAlimentadorLigado = datetime.now()
