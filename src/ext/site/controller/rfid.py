@@ -19,7 +19,7 @@ def read(gpio):
     matriz = matrizCRUD.consultarMatrizRFID(tag)
 
     if matriz is not None:
-        if matriz.separate:
+        if matriz.separate is True:
             motor.openSeparador(gpio)
 
         print('Matriz {} identificada'.format(matriz.rfid))

@@ -18,11 +18,10 @@ def consultarMatrizRFID(rfid):  # Read
 
         matriz.entrada = datetime.now()
         matriz.hash = str(uuid.uuid4())
-        matriz.quantidadeTotal = confinamentoCRUD.consultarQuantidadeAlimento(
-            matriz.id)
-        matriz.separate = confinamentoCRUD.canOpenDoor(matriz.id)
         matriz.confinamentoId = session.query(Confinamento.id).filter_by(
             matrizId=matriz.id, active=True).first()
+        matriz.quantidadeTotal = confinamentoCRUD.consultarQuantidadeAlimento(matriz.confinamentoId)
+        matriz.separate = confinamentoCRUD.canOpenDoor(matriz.id)
 
         matriz.quantidade = 0
 

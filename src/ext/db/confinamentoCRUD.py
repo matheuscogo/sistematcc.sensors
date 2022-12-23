@@ -26,10 +26,10 @@ def consultaConfinamentoPelaMatriz(matrizId):
         return str(e)
 
 
-def consultarQuantidadeAlimento(matrizId):
+def consultarQuantidadeAlimento(confinamentoId):
     try:
         confinamento = session.query(Confinamento).filter_by(
-            matrizId=matrizId, active=True, deleted=False).first()
+            id=confinamentoId[0], active=True, deleted=False).first()
 
         dia = consultarQuantidadeDiasConfinamento(matrizId=confinamento.matrizId)
         
@@ -39,14 +39,30 @@ def consultarQuantidadeAlimento(matrizId):
             planoId=confinamento.planoId, 
             dia=dia
         ).first()
+
+        dataInicial = datetime.now()
+        dataInicial = datetime(
+            dataInicial.year, 
+            dataInicial.month,
+            dataInicial.day,
+            0,
+            0,
+            0,
+            0
+        )
         
-        totalQuantity = session.query(func.sum(Registro.quantidade)).filter_by(
-            confinamentoId=confinamento.id, dataEntrada=confinamento.dataConfinamento).first()[0]
+        totalQuantity = session.query(
+            func.sum(Registro.quantidade)
+        ).filter(
+            Registro.dataEntrada >= dataInicial,
+            Registro.dataEntrada <= datetime.now(),
+            Registro.confinamentoId == confinamento.id
+        ).first()
 
         if totalQuantity is None:
             totalQuantity = 0
 
-        total = dayQuantity[0] - totalQuantity
+        total = dayQuantity[0] - totalQuantity[0]
 
         if total <= 0:
             total = 0

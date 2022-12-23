@@ -22,11 +22,10 @@ def init_app(GPIO):
 
 
 def read(gpio):
-   print("Aguardando detectção")
-   readed = gpio.input(sensors.sensorPIR) == 1
-   if readed:
-       if button.closed(gpio) is False:
-           motor.close(gpio)
-           return True
+    print("Aguardando detectção")
+    readed = gpio.input(sensors.sensorPIR) == 1
+    if readed:
+        if button.closed(gpio) is False:
+            motor.close(gpio)
 
-   return False
+    return readed

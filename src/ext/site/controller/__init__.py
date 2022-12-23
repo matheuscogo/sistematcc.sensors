@@ -77,12 +77,12 @@ def start(gpio):
                 # a contagem do intervalo
                 if matrizReaded is not None:
                     if tempoAlimentadorLigado is None:
-                        if matrizReaded.quantidade <= matrizReaded.quantidadeTotal:
+                        if matrizReaded.quantidade < matrizReaded.quantidadeTotal:
                             if ultimaPorcao is None:
                                 ultimaPorcao = datetime.now()
                                 
                             if (datetime.now() - ultimaPorcao).seconds > parametros.intervaloPorcoes:
-                                ultimaPorcao = None
+                                ultimaPorcao = datetime.now()
                                 tempoAlimentadorLigado = datetime.now()
                                 matrizReaded.quantidade += motor.feed(matrizReaded, gpio)
 
@@ -118,7 +118,12 @@ def start(gpio):
                         # Salva os dados no banco e abre a porta
                         print("Salvando os dados....")
                         process.save(registro)
-                        clean()
+                        matrizReaded = None
+                        registro = None
+                        tempoSemLeitura = None
+                        saida = None
+                        tempoAlimentadorLigado = None
+                        ultimaPorcao = None
 
                     motor.open(gpio)
                     motor.closeSeparador(gpio)
