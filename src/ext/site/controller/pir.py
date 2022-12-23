@@ -11,11 +11,8 @@ def read(gpio):
     print("Aguardando detectção")
     readed = gpio.input(sensors.sensorPIR) == 1
     if readed:
-        if button.opened(gpio):
+        if button.closed(gpio) is False:
             motor.close(gpio)
-            return True
-
-        if button.closed(gpio):
             return True
 
     return False
