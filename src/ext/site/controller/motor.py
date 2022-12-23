@@ -50,7 +50,7 @@ def closeSeparador(gpio):
 
 def feed(matriz, gpio):
     print("Alimentando...")
-    #gpio.output(sensors.alimentador, 1)
+    gpio.output(sensors.alimentador, 1)
 
     matriz.quantidade = parametros.quantidadePorcao
 
